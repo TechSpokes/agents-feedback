@@ -1,0 +1,10 @@
+objective: ""
+owner: agent
+steps:
+  - id: step-1
+    title: ""
+    status: planned
+    validation: ""
+outcome:
+  status: pending
+  notes: ""

@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../schemas/record.schema.json
+schema_version: feedback-record.v1
+id: fb-YYYYMMDD-HHMM-short-slug
+title: ""
+status: new
+created_at: "YYYY-MM-DDTHH:MM:SSZ"
+updated_at: "YYYY-MM-DDTHH:MM:SSZ"
+completed_at: null
+area: ""
+kind: friction
+severity: low
+summary: ""
+evidence: ""
+impact: ""
+suggested_action: ""
+decision: undecided
+related_files: []
+plan: null
+sensitivity:
+  sanitized: true
+  notes: "No secrets, credentials, raw private logs, customer data, or private tokens."

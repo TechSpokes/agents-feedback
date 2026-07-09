@@ -79,6 +79,8 @@ sensitivity:
 
 Valid statuses are `new`, `planned`, `in_progress`, `in_review`, `completed`, and `archived`. The `completed_at` field must be set when a record is completed and must be `null` until completion.
 
+Valid decisions are `undecided`, `accepted`, `declined`, `transferred`, `completed`, `duplicate`, `obsolete`, and `retained`. Use `duplicate`, `obsolete`, or `retained` for archived records when those values describe the outcome more accurately than `declined` or `transferred`.
+
 ## Plan Contract
 
 The `plan` field is optional and may be `null`. When present, it must follow `schemas/plan.schema.json`.

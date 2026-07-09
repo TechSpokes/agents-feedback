@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://techspokes.local/agents-feedback/plan.schema.json",
+  "title": "Agents Feedback Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["objective", "owner", "steps", "outcome"],
+  "properties": {
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "owner": {
+      "type": "string",
+      "enum": ["agent", "human", "mixed"]
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "status", "validation"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^step-[0-9]+$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": ["planned", "in_progress", "done", "skipped"]
+          },
+          "validation": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "notes"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["pending", "completed", "archived"]
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

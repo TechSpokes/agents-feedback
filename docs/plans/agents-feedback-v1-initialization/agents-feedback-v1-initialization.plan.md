@@ -372,7 +372,7 @@ This folder contains YAML feedback records grouped by lifecycle status.
 - `in_progress/` - improvements currently being implemented.
 - `in_review/` - improvements waiting for validation or owner review.
 - `completed/` - resolved feedback with completion evidence.
-- `archived/` - duplicates, declined records, transferred records, and retained history.
+- `archived/` - duplicate, obsolete, declined, transferred, or retained records.
 
 ## Conventions
 
@@ -475,7 +475,7 @@ Use this folder to record sanitized agent observations that can improve future w
 
 ## Agent guidelines
 
-Create records in `records/new/` from `templates/record.yaml`. Move records forward only when their state changes. Use `completed/` for resolved items with evidence, and use `archived/` for duplicates, declined items, obsolete items, or records transferred elsewhere.
+Create records in `records/new/` from `templates/record.yaml`. Move records forward only when their state changes. Use `completed/` for resolved items with evidence, and use `archived/` for duplicate, obsolete, declined, transferred, or retained records.
 
 ## Context
 
@@ -521,7 +521,7 @@ Expected: commit succeeds.
 Create `scaffold/.agents/feedback/templates/record.yaml`.
 
 ```yaml
-# yaml-language-server: $schema=../../schemas/record.schema.json
+# yaml-language-server: $schema=../schemas/record.schema.json
 schema_version: feedback-record.v1
 id: fb-YYYYMMDD-HHMM-short-slug
 title: ""
@@ -544,7 +544,7 @@ sensitivity:
   notes: "No secrets, credentials, raw private logs, customer data, or private tokens."
 ```
 
-The schema path is intentionally correct for the copied record location under `records/<status>/`. It is not intended to validate the template in place under `templates/`.
+The schema path is intentionally correct for validating the template in place under `templates/`. If a target repository wants every copied record to carry its own YAML language server directive, update that copied record to `../../schemas/record.schema.json` after placing it under `records/<status>/`.
 
 - [ ] **Step 2: Create plan template**
 
@@ -657,7 +657,7 @@ Create `scaffold/.agents/feedback/schemas/record.schema.json`.
     "evidence": { "type": "string", "minLength": 1 },
     "impact": { "type": "string", "minLength": 1 },
     "suggested_action": { "type": "string", "minLength": 1 },
-    "decision": { "type": "string", "enum": ["undecided", "accepted", "declined", "transferred", "completed"] },
+    "decision": { "type": "string", "enum": ["undecided", "accepted", "declined", "transferred", "completed", "duplicate", "obsolete", "retained"] },
     "related_files": { "type": "array", "items": { "type": "string" } },
     "plan": {
       "anyOf": [
