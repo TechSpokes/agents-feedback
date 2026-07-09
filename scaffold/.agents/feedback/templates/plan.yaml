@@ -1,10 +1,23 @@
+schema_version: feedback-plan.v1
 objective: ""
 owner: agent
-steps:
-  - id: step-1
+status: planned
+source_action_id: null
+phases:
+  - id: phase-1
     title: ""
     status: planned
-    validation: ""
+    tasks:
+      - id: task-1
+        title: ""
+        # Concrete instructions for performing this task.
+        instructions: ""
+        status: planned
+        # How to prove this task was completed correctly.
+        validation: ""
+        # Evidence collected while executing or validating the task.
+        evidence: ""
+        tasks: []
 outcome:
   status: pending
   notes: ""

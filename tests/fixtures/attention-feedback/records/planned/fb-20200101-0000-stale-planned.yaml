@@ -9,12 +9,19 @@ area: "workflow"
 kind: friction
 severity: medium
 summary: "A planned observation has not been updated recently."
+description: "This fixture intentionally uses an old updated_at timestamp so stale detection can fire."
 evidence: "A sanitized fixture record demonstrates stale detection."
 impact: "Future agents can identify planned work that needs attention."
-suggested_action: "Refresh the record or archive it."
+suggested_actions:
+  - id: action-1
+    title: "Refresh or archive the record"
+    rationale: "A stale planned record should be confirmed or moved to another lifecycle state."
+    effort: low
+    risk: low
 decision: accepted
 related_files: []
 plan: null
 sensitivity:
   sanitized: true
-  notes: "No secrets, credentials, raw private logs, customer data, or private tokens."
+  classification: public
+  redaction_notes: ""

@@ -9,13 +9,24 @@ completed_at: null
 area: ""
 kind: friction
 severity: low
+# One sentence for quick scanning.
 summary: ""
+# Full context future agents need to understand the observation.
+description: ""
+# Sanitized evidence summary. Do not paste raw logs or private content.
 evidence: ""
 impact: ""
-suggested_action: ""
+# Add one or more possible fixes before selecting a plan.
+suggested_actions:
+  - id: action-1
+    title: ""
+    rationale: ""
+    effort: low
+    risk: low
 decision: undecided
 related_files: []
 plan: null
 sensitivity:
   sanitized: true
-  notes: "No secrets, credentials, raw private logs, customer data, or private tokens."
+  classification: public
+  redaction_notes: ""

@@ -3,18 +3,25 @@ id: fb-20260703-0900-progress-item
 title: "Progress observation"
 status: in_progress
 created_at: "2026-07-03T09:00:00Z"
-updated_at: "2099-01-03T00:00:00Z"
+updated_at: "2026-07-03T09:30:00Z"
 completed_at: null
 area: "tooling"
 kind: tooling
 severity: medium
 summary: "A tooling observation is actively being implemented."
+description: "The selected tooling improvement is underway and should not be restarted by future agents."
 evidence: "A sanitized fixture record demonstrates the in_progress lifecycle state."
 impact: "Future agents can see work already underway."
-suggested_action: "Continue the implementation and move it to review."
+suggested_actions:
+  - id: action-1
+    title: "Continue implementation"
+    rationale: "The work has already started and should move forward from the current state."
+    effort: medium
+    risk: medium
 decision: accepted
 related_files: []
 plan: null
 sensitivity:
   sanitized: true
-  notes: "No secrets, credentials, raw private logs, customer data, or private tokens."
+  classification: public
+  redaction_notes: ""

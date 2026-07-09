@@ -16,6 +16,8 @@ const YAML_FIELDS = new Set([
   'area',
   'kind',
   'severity',
+  'summary',
+  'description',
   'decision',
 ]);
 
@@ -322,6 +324,14 @@ function analyzeNeedsAttention(records, staleDays) {
 
     if (isBlank(record.title)) {
       needsAttention.push(attentionItem(record, 'missing title'));
+    }
+
+    if (isBlank(record.summary)) {
+      needsAttention.push(attentionItem(record, 'missing summary'));
+    }
+
+    if (isBlank(record.description)) {
+      needsAttention.push(attentionItem(record, 'missing description'));
     }
 
     if (isBlank(record.status)) {

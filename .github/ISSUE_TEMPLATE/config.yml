@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and design discussion
+    url: https://github.com/TechSpokes/agents-feedback/discussions
+    about: Use Discussions for usage questions, installation questions, ideas, and general design discussion.
+  - name: Security reports
+    url: https://github.com/TechSpokes/agents-feedback/security/policy
+    about: Use the security policy for vulnerabilities or sensitive reports.

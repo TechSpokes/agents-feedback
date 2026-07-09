@@ -3,18 +3,25 @@ id: fb-20260704-0900-review-item
 title: "Review observation"
 status: in_review
 created_at: "2026-07-04T09:00:00Z"
-updated_at: "2099-01-04T00:00:00Z"
+updated_at: "2026-07-04T09:30:00Z"
 completed_at: null
 area: "tests"
 kind: verification
 severity: low
 summary: "A verification observation is waiting for review."
+description: "The improvement exists and needs validation before the record can be completed."
 evidence: "A sanitized fixture record demonstrates the in_review lifecycle state."
 impact: "Future agents can find work that needs validation."
-suggested_action: "Validate the improvement and mark it completed."
+suggested_actions:
+  - id: action-1
+    title: "Validate the improvement"
+    rationale: "Review evidence is needed before marking the record completed."
+    effort: low
+    risk: low
 decision: accepted
 related_files: []
 plan: null
 sensitivity:
   sanitized: true
-  notes: "No secrets, credentials, raw private logs, customer data, or private tokens."
+  classification: public
+  redaction_notes: ""

@@ -1,5 +1,11 @@
 # Agents Feedback v1 Initialization Implementation Plan
 
+This plan is historical. It initialized the first scaffold shape and is superseded for v1 delivery by `docs/plans/agents-feedback-v1-agent-installer-refactor/agents-feedback-v1-agent-installer-refactor.plan.md`.
+
+## Historical Notes
+
+The unchecked boxes below are no longer active delivery instructions. Use this file only as context for the original scaffold initialization.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Initialize `agents-feedback` as a GitHub-maintained repository that ships a small, portable `.agents/feedback` scaffold for repository-local agent efficiency feedback.

@@ -6,12 +6,16 @@
   "license": "MIT",
   "type": "module",
   "engines": {
-    "node": ">=18"
+    "node": ">=24"
   },
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "check:state": "node scaffold/.agents/feedback/tools/feedback-state.mjs --root scaffold/.agents/feedback",
-    "release:check": "npm test && npm run check:state"
+    "check:contract": "node scripts/validate-feedback-contract.mjs",
+    "release:notes": "node scripts/lib/release-notes.mjs",
+    "artifact:build": "node scripts/build-release-artifact.mjs",
+    "artifact:check": "node scripts/build-release-artifact.mjs --check",
+    "release:check": "npm test && npm run check:contract && npm run release:notes && npm run check:state && npm run artifact:check"
   },
   "files": [
     "scaffold",

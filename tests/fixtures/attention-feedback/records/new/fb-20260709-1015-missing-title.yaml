@@ -8,12 +8,19 @@ area: "workflow"
 kind: friction
 severity: low
 summary: "The title is intentionally missing."
+description: "This fixture intentionally omits the title field while keeping the rest of the record shape current."
 evidence: "A sanitized fixture record demonstrates missing title detection."
 impact: "Future agents can identify incomplete records."
-suggested_action: "Add a title before relying on the record."
+suggested_actions:
+  - id: action-1
+    title: "Add a title"
+    rationale: "The record needs a title before agents can scan it reliably."
+    effort: low
+    risk: low
 decision: undecided
 related_files: []
 plan: null
 sensitivity:
   sanitized: true
-  notes: "No secrets, credentials, raw private logs, customer data, or private tokens."
+  classification: public
+  redaction_notes: ""

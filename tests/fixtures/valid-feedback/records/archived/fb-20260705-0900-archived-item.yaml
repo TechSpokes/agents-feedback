@@ -9,12 +9,19 @@ area: "workflow"
 kind: friction
 severity: low
 summary: "A workflow observation is obsolete and archived."
+description: "The observation no longer applies but is retained so future agents understand why it was closed."
 evidence: "A sanitized fixture record demonstrates the archived lifecycle state."
 impact: "Future agents can avoid reopening obsolete feedback."
-suggested_action: "Retain the archived record for historical context."
+suggested_actions:
+  - id: action-1
+    title: "Retain archived context"
+    rationale: "The record explains why the obsolete observation should stay closed."
+    effort: low
+    risk: low
 decision: obsolete
 related_files: []
 plan: null
 sensitivity:
   sanitized: true
-  notes: "No secrets, credentials, raw private logs, customer data, or private tokens."
+  classification: public
+  redaction_notes: ""

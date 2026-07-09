@@ -3,18 +3,25 @@ id: fb-20260709-1045-planned-with-completed-at
 title: "Planned record with completed timestamp"
 status: planned
 created_at: "2026-07-09T10:45:00Z"
-updated_at: "2099-01-01T00:00:00Z"
+updated_at: "2026-07-09T10:45:00Z"
 completed_at: "2026-07-09T10:45:00Z"
 area: "workflow"
 kind: friction
 severity: low
 summary: "The completed timestamp is intentionally set before completion."
+description: "This fixture intentionally sets completed_at before completion so lifecycle timestamp validation can fire."
 evidence: "A sanitized fixture record demonstrates completed_at lifecycle detection."
 impact: "Future agents can identify premature completion metadata."
-suggested_action: "Clear completed_at until the record is completed."
+suggested_actions:
+  - id: action-1
+    title: "Clear premature completion timestamp"
+    rationale: "Non-completed records must keep completed_at null."
+    effort: low
+    risk: low
 decision: accepted
 related_files: []
 plan: null
 sensitivity:
   sanitized: true
-  notes: "No secrets, credentials, raw private logs, customer data, or private tokens."
+  classification: public
+  redaction_notes: ""

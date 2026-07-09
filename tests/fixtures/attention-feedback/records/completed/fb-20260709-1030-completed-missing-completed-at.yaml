@@ -9,12 +9,19 @@ area: "workflow"
 kind: friction
 severity: low
 summary: "The completed timestamp is intentionally null."
+description: "This fixture intentionally leaves completed_at null while the record sits in the completed folder."
 evidence: "A sanitized fixture record demonstrates completed_at lifecycle detection."
 impact: "Future agents can identify completed records without completion evidence."
-suggested_action: "Set completed_at when marking the record completed."
+suggested_actions:
+  - id: action-1
+    title: "Set completed timestamp"
+    rationale: "Completed records need a completion timestamp for sorting and evidence."
+    effort: low
+    risk: low
 decision: completed
 related_files: []
 plan: null
 sensitivity:
   sanitized: true
-  notes: "No secrets, credentials, raw private logs, customer data, or private tokens."
+  classification: public
+  redaction_notes: ""

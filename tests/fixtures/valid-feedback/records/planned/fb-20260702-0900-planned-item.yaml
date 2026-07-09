@@ -3,18 +3,25 @@ id: fb-20260702-0900-planned-item
 title: "Planned observation"
 status: planned
 created_at: "2026-07-02T09:00:00Z"
-updated_at: "2099-01-02T00:00:00Z"
+updated_at: "2026-07-02T09:30:00Z"
 completed_at: null
 area: "workflow"
 kind: friction
 severity: medium
 summary: "A planned workflow observation has an accepted action."
+description: "The observation has been triaged and an action has been accepted, but implementation has not started."
 evidence: "A sanitized fixture record demonstrates the planned lifecycle state."
 impact: "Future agents can find selected improvements."
-suggested_action: "Start the planned improvement when capacity is available."
+suggested_actions:
+  - id: action-1
+    title: "Start the planned improvement"
+    rationale: "The record already has an accepted action and is ready for implementation."
+    effort: medium
+    risk: low
 decision: accepted
 related_files: []
 plan: null
 sensitivity:
   sanitized: true
-  notes: "No secrets, credentials, raw private logs, customer data, or private tokens."
+  classification: public
+  redaction_notes: ""

@@ -2,56 +2,142 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://techspokes.local/agents-feedback/plan.schema.json",
   "title": "Agents Feedback Plan",
+  "description": "A selected feedback action plan that also tracks implementation progress.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["objective", "owner", "steps", "outcome"],
+  "required": ["schema_version", "objective", "owner", "status", "source_action_id", "phases", "outcome"],
   "properties": {
+    "schema_version": {
+      "description": "Plan schema identifier. Use feedback-plan.v1 for v1 plans.",
+      "type": "string",
+      "const": "feedback-plan.v1"
+    },
     "objective": {
+      "description": "Concrete outcome this plan is intended to achieve.",
       "type": "string",
       "minLength": 1
     },
     "owner": {
+      "description": "Primary owner expected to execute or coordinate the plan.",
       "type": "string",
       "enum": ["agent", "human", "mixed"]
     },
-    "steps": {
+    "status": {
+      "description": "Overall plan status.",
+      "type": "string",
+      "enum": ["planned", "in_progress", "in_review", "completed", "archived"]
+    },
+    "source_action_id": {
+      "description": "Identifier of the selected suggested action, or null when the plan did not originate from one action.",
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^action-[0-9]+$"
+        }
+      ]
+    },
+    "phases": {
+      "description": "Ordered groups of tasks used to execute and track the selected action.",
       "type": "array",
       "minItems": 1,
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["id", "title", "status", "validation"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "pattern": "^step-[0-9]+$"
-          },
-          "title": {
-            "type": "string",
-            "minLength": 1
-          },
-          "status": {
-            "type": "string",
-            "enum": ["planned", "in_progress", "done", "skipped"]
-          },
-          "validation": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
+        "$ref": "#/definitions/phase"
       }
     },
     "outcome": {
+      "description": "Final or current outcome notes for the plan.",
       "type": "object",
       "additionalProperties": false,
       "required": ["status", "notes"],
       "properties": {
         "status": {
+          "description": "Outcome status for the selected action.",
           "type": "string",
           "enum": ["pending", "completed", "archived"]
         },
         "notes": {
+          "description": "Concise evidence or explanation of the plan outcome.",
           "type": "string"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "phase": {
+      "description": "A named execution phase in a feedback plan.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "status", "tasks"],
+      "properties": {
+        "id": {
+          "description": "Stable phase identifier within this plan, such as phase-1.",
+          "type": "string",
+          "pattern": "^phase-[0-9]+$"
+        },
+        "title": {
+          "description": "Short phase title.",
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "description": "Current phase status.",
+          "type": "string",
+          "enum": ["planned", "in_progress", "in_review", "completed", "archived"]
+        },
+        "tasks": {
+          "description": "Tasks in this phase.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/task"
+          }
+        }
+      }
+    },
+    "task": {
+      "description": "A task or nested task used to execute and track feedback work.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "instructions", "status", "validation", "evidence", "tasks"],
+      "properties": {
+        "id": {
+          "description": "Stable task identifier within its phase or parent task, such as task-1.",
+          "type": "string",
+          "pattern": "^task-[0-9]+$"
+        },
+        "title": {
+          "description": "Short task title.",
+          "type": "string",
+          "minLength": 1
+        },
+        "instructions": {
+          "description": "Concrete instructions needed to execute this task.",
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "description": "Current task status.",
+          "type": "string",
+          "enum": ["planned", "in_progress", "blocked", "done", "skipped"]
+        },
+        "validation": {
+          "description": "How to prove this task was completed correctly.",
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "description": "Evidence gathered while executing or validating this task.",
+          "type": "string"
+        },
+        "tasks": {
+          "description": "Optional nested tasks. Keep nesting shallow and promote large plans to normal repository docs.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/task"
+          }
         }
       }
     }

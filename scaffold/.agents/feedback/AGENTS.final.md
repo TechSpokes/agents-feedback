@@ -8,9 +8,10 @@ Use this folder to record sanitized agent observations that can improve future w
 
 - Record feedback only when the observation is actionable, repeated, surprising, or likely to improve future agent efficiency.
 - Do not use this folder for normal task status, private scratch notes, project memory, or canonical documentation.
-- Never include secrets, credentials, raw tokens, customer data, private issue text, screenshots, or large logs.
+- Never include secrets, credentials, raw tokens, customer data, private issue text, screenshots, large logs, or raw private logs.
 - Keep each record `status` field aligned with the folder containing the record.
 - Promote durable rules to the repository's canonical instructions, docs, scripts, or tests before marking feedback completed.
+- Keep plans shallow. Move large implementation plans into normal repository docs.
 
 ## Must-read documents
 
@@ -23,7 +24,15 @@ Use this folder to record sanitized agent observations that can improve future w
 
 Create records in `records/new/` from `templates/record.yaml`. Use an `id` and filename that start with `fb-YYYYMMDD-HHMM-short-slug`.
 
-Sanitize data before writing. Summarize evidence instead of pasting raw logs, private issue text, credentials, tokens, customer data, screenshots, or machine-specific secrets.
+Use `summary` for a one-sentence scan line. Use `description` for the full context future agents need. Use `suggested_actions` for one or more possible fixes before a decision is selected.
+
+Sanitize data before writing. Summarize evidence instead of pasting raw logs, private issue text, credentials, tokens, customer data, screenshots, machine-specific secrets, or large logs.
+
+## Planning
+
+Use `plan` only after a suggested action has been selected. A plan is both the selected implementation plan and a progress tracker for the feedback record.
+
+Keep `phases` and nested `tasks` concise. If the work needs deep planning or multiple sessions, promote the durable plan to the repository's normal docs and link it from `related_files` or `evidence`.
 
 ## Lifecycle
 
@@ -37,9 +46,9 @@ Set `completed_at` only for completed records. Leave `completed_at` as `null` in
 
 Before moving a record to `completed/`, promote any durable rule to the repository's canonical `AGENTS.md`, README, docs, scripts, or tests. The completed record should point to the durable location in `related_files` or `evidence`.
 
-## Context
+## Sensitivity
 
-This folder exists because agents often rediscover the same repository-specific friction. A small, structured feedback folder lets future agents see what has been noticed, what is being addressed, and what improvements already landed without turning the repository into a separate issue tracker.
+Set `sensitivity.sanitized` to `true` only after reviewing the record for restricted content. Use `sensitivity.classification` to describe the remaining sensitivity level and `sensitivity.redaction_notes` to summarize any redaction performed.
 
 ## References
 

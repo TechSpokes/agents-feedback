@@ -17,8 +17,10 @@ Records usually move through `new`, `planned`, `in_progress`, `in_review`, and `
 
 The `archived` state can be reached from any lifecycle state.
 
-## Conventions
+## Record Shape
 
 Each record filename must start with its `id`, such as `fb-20260709-0830-shell-startup-friction.yaml`.
 
-The `status` field in each record must match the folder that contains it.
+Use `summary` for one-sentence scanning and `description` for full context. Use `suggested_actions` for possible fixes, then use `plan` to track the selected action and progress.
+
+The `status` field in each record must match the folder that contains it. The `completed_at` field must be set only for records in `completed/`.

@@ -1,0 +1,30 @@
+name: Feature request
+description: Propose an improvement to agents-feedback.
+title: "[Feature]: "
+labels:
+  - "enhancement"
+body:
+  - type: markdown
+    attributes:
+      value: "Use Discussions for open-ended ideas. Use this form for concrete feature requests with a clear target behavior."
+  - type: textarea
+    id: need
+    attributes:
+      label: Need
+      description: What problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What behavior or documentation should change?
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: Note any portability, dependency, release artifact, or installed scaffold constraints.
+    validations:
+      required: false

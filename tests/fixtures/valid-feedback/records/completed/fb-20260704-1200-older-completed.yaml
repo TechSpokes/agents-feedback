@@ -9,12 +9,19 @@ area: "docs"
 kind: documentation
 severity: low
 summary: "An older documentation observation has been completed."
+description: "A documentation improvement landed earlier and remains available for completed-record sorting tests."
 evidence: "A sanitized fixture record demonstrates completed sorting."
 impact: "Future agents can inspect completed feedback."
-suggested_action: "Keep the completed record as evidence."
+suggested_actions:
+  - id: action-1
+    title: "Keep completion evidence"
+    rationale: "The completed record shows what improvement landed and when."
+    effort: low
+    risk: low
 decision: completed
 related_files: []
 plan: null
 sensitivity:
   sanitized: true
-  notes: "No secrets, credentials, raw private logs, customer data, or private tokens."
+  classification: public
+  redaction_notes: ""

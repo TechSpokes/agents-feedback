@@ -1,34 +1,38 @@
 # agents-feedback
 
-`agents-feedback` ships a small `.agents/feedback` scaffold for repository-local agent feedback. It gives coding agents a structured place to record workflow friction, missing instructions, setup problems, tool issues, and completed efficiency improvements for the same repository.
+`agents-feedback` ships an agent-installable `.agents/feedback` scaffold. A repository owner downloads the release artifact, extracts it at a target repository root, and points an agent at `.agents/feedback/AGENTS.md`; the agent wires the repository instructions and converts the folder into operational feedback mode.
 
-The scaffold is not long-term memory, not a task tracker, and not canonical documentation. Durable project rules belong in the repository's normal `AGENTS.md`, README, docs, scripts, and tests.
+## What It Provides
 
-## Quick Start
+The scaffold gives agents a structured repository-local place to record workflow friction, missing instructions, setup problems, verification gaps, and completed improvements that should help future agent sessions in the same repository.
 
-Copy `scaffold/.agents/feedback` into a target repository as `.agents/feedback`. Add the root instruction hook from `scaffold/.agents/feedback/templates/root-agents-hook.md` to the target repository's root `AGENTS.md` or equivalent agent instruction file.
+Feedback records are YAML files grouped by lifecycle state. Records include a short `summary`, a full `description`, sanitized `evidence`, `impact`, one or more `suggested_actions`, and an optional plan used for implementation and progress tracking.
 
-After the hook is in place, replace `.agents/feedback/AGENTS.md` in the target repository with `.agents/feedback/AGENTS.final.md`. The target repository is then ready to store sanitized feedback records under `.agents/feedback/records/`.
+## Installation Flow
 
-## Installation Modes
+1. Download the release artifact named `agents-feedback-vX.Y.Z.zip`.
+2. Extract it at the target repository root so `.agents/feedback/AGENTS.md` exists.
+3. Ask an agent to read `.agents/feedback/AGENTS.md` and complete installation.
+4. Review the root instruction change made by the agent.
 
-Hooked mode is recommended. Copy `.agents/feedback`, add the root hook, and switch from bootstrap instructions to `AGENTS.final.md` so agents can discover the feedback folder reliably.
+## Agent Installer
 
-Manual mode is supported. Copy `.agents/feedback` without adding the root hook only when users will explicitly instruct agents to read `.agents/feedback/AGENTS.md`.
+The bootstrap `AGENTS.md` in `.agents/feedback` is the installer entrypoint. It instructs the agent to read `INSTALL.md`, add or update the managed root hook, verify the scaffold, and replace itself with `AGENTS.final.md` after installation succeeds.
 
-## Requirements
+The installed scaffold has no package install, database, or background service. The optional `feedback-state.mjs` script uses only Node.js built-ins and requires Node.js 18 or newer in target repositories.
 
-The installed scaffold has no package install, database, or background service. The optional `feedback-state.mjs` script uses only Node.js built-ins and requires Node.js 18 or newer.
+## Repository Development
 
-Repository development checks require Node.js 18 or newer when `package.json` and tests are present. On Windows PowerShell, use `npm.cmd` if local execution policy blocks `npm.ps1`.
+Repository checks use Node.js 24. On Windows PowerShell, use `npm.cmd` if local execution policy blocks `npm.ps1`.
 
-## Verification Commands
-
-Run these checks before release once the tooling files are present:
+Run the release checks before requesting release approval:
 
 ```bash
 npm test
+npm run check:contract
+npm run release:notes
 npm run check:state
+npm run artifact:check
 npm run release:check
 ```
 
@@ -39,20 +43,24 @@ node scaffold/.agents/feedback/tools/feedback-state.mjs --root scaffold/.agents/
 node scaffold/.agents/feedback/tools/feedback-state.mjs --root scaffold/.agents/feedback --format json
 ```
 
-In a target repository with an installed scaffold, use the installed path:
-
-```bash
-node .agents/feedback/tools/feedback-state.mjs --root .agents/feedback
-```
-
 ## Repository Contents
 
 - `AGENTS.md` contains repository maintenance instructions for agents.
+- `CHANGELOG.md` records public product releases only.
 - `CONTRIBUTING.md` describes contribution scope and verification.
+- `SECURITY.md`, `SUPPORT.md`, and `CODE_OF_CONDUCT.md` define public repository support and conduct policy.
+- `.github/` contains CI, release automation, CODEOWNERS, Dependabot, issue templates, and the pull request template.
 - `docs/specification.md` defines the scaffold contract.
-- `docs/release-v1.md` defines the v1 release scope and approval-gated publishing.
-- `scaffold/.agents/feedback/` contains the installable feedback scaffold.
-- `tests/` contains state script tests and fixtures when tooling exists.
+- `docs/releases/README.md` defines release note file requirements and the draft release workflow.
+- `docs/releases/v1.0.0.md` defines the v1 release body used for the draft GitHub Release.
+- `scaffold/.agents/feedback/` contains the source scaffold used to build release artifacts.
+- `tests/` contains state, contract, installer, and artifact tests.
+
+## Boundaries
+
+The scaffold is not long-term memory, not a general task tracker, not a project changelog, and not canonical project documentation. Durable rules belong in the repository's normal `AGENTS.md`, README, docs, scripts, and tests.
+
+Never store secrets, credentials, raw private logs, customer data, private tokens, private issue text, screenshots, or large logs in feedback records.
 
 ## License
 

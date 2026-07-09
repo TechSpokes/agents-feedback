@@ -1,0 +1,126 @@
+name: Draft Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to draft, for example v1.0.0"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  draft-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Resolve release metadata
+        id: release
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            tag="${{ inputs.tag }}"
+          else
+            tag="${GITHUB_REF_NAME}"
+          fi
+
+          if [[ ! "${tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "release tag must use vX.Y.Z format: ${tag}" >&2
+            exit 1
+          fi
+
+          git fetch --force --tags
+          if ! git rev-parse --verify "refs/tags/${tag}" >/dev/null; then
+            echo "release tag does not exist: ${tag}" >&2
+            exit 1
+          fi
+          git checkout --detach "${tag}"
+
+          version="${tag#v}"
+          package_version="$(node -p "require('./package.json').version")"
+          if [ "${package_version}" != "${version}" ]; then
+            echo "package.json version ${package_version} does not match tag ${tag}" >&2
+            exit 1
+          fi
+
+          notes_file="docs/releases/${tag}.md"
+          node scripts/lib/release-notes.mjs "${notes_file}" "${tag}"
+
+          notes_body_file="${RUNNER_TEMP}/agents-feedback-${tag}-release-body.md"
+          tail -n +2 "${notes_file}" > "${notes_body_file}"
+
+          artifact="dist/agents-feedback-${tag}.zip"
+          checksum="${artifact}.sha256"
+          title="agents-feedback ${tag}"
+
+          {
+            echo "tag=${tag}"
+            echo "version=${version}"
+            echo "notes_file=${notes_file}"
+            echo "notes_body_file=${notes_body_file}"
+            echo "artifact=${artifact}"
+            echo "checksum=${checksum}"
+            echo "title=${title}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Run release checks
+        run: npm run release:check
+
+      - name: Build release artifact
+        run: npm run artifact:build
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: agents-feedback-${{ steps.release.outputs.tag }}
+          path: |
+            ${{ steps.release.outputs.artifact }}
+            ${{ steps.release.outputs.checksum }}
+
+      - name: Create draft GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ steps.release.outputs.tag }}
+          RELEASE_TITLE: ${{ steps.release.outputs.title }}
+          NOTES_BODY_FILE: ${{ steps.release.outputs.notes_body_file }}
+          ARTIFACT: ${{ steps.release.outputs.artifact }}
+          CHECKSUM: ${{ steps.release.outputs.checksum }}
+        shell: bash
+        run: |
+          if [ ! -f "${ARTIFACT}" ]; then
+            echo "missing release artifact: ${ARTIFACT}" >&2
+            exit 1
+          fi
+          if [ ! -f "${CHECKSUM}" ]; then
+            echo "missing release checksum: ${CHECKSUM}" >&2
+            exit 1
+          fi
+
+          release_state="$(gh release view "${TAG_NAME}" --json isDraft --jq '.isDraft' 2>/dev/null || true)"
+          if [ "${release_state}" = "false" ]; then
+            echo "release ${TAG_NAME} is already published; refusing to mutate it" >&2
+            exit 1
+          fi
+
+          if [ "${release_state}" = "true" ]; then
+            gh release edit "${TAG_NAME}" --title "${RELEASE_TITLE}" --notes-file "${NOTES_BODY_FILE}"
+          else
+            gh release create "${TAG_NAME}" --draft --title "${RELEASE_TITLE}" --notes-file "${NOTES_BODY_FILE}"
+          fi
+
+          gh release upload "${TAG_NAME}" "${ARTIFACT}" "${CHECKSUM}" --clobber

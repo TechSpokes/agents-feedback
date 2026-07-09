@@ -2,6 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://techspokes.local/agents-feedback/record.schema.json",
   "title": "Agents Feedback Record",
+  "description": "A repository-local feedback record that captures a sanitized agent observation and its lifecycle state.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -16,9 +17,10 @@
     "kind",
     "severity",
     "summary",
+    "description",
     "evidence",
     "impact",
-    "suggested_action",
+    "suggested_actions",
     "decision",
     "related_files",
     "plan",
@@ -26,30 +28,37 @@
   ],
   "properties": {
     "schema_version": {
+      "description": "Record schema identifier. Use feedback-record.v1 for v1 records.",
       "type": "string",
       "const": "feedback-record.v1"
     },
     "id": {
+      "description": "Stable record identifier and filename prefix using UTC date, time, and a short slug.",
       "type": "string",
       "pattern": "^fb-[0-9]{8}-[0-9]{4}-[a-z0-9][a-z0-9-]*$"
     },
     "title": {
+      "description": "Short human-readable record title for list displays.",
       "type": "string",
       "minLength": 1
     },
     "status": {
+      "description": "Lifecycle state. This value must match the folder containing the record.",
       "type": "string",
       "enum": ["new", "planned", "in_progress", "in_review", "completed", "archived"]
     },
     "created_at": {
+      "description": "UTC timestamp for when the record was created.",
       "type": "string",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
     },
     "updated_at": {
+      "description": "UTC timestamp for the most recent meaningful record update.",
       "type": "string",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
     },
     "completed_at": {
+      "description": "UTC completion timestamp. Set only when status is completed; otherwise use null.",
       "anyOf": [
         {
           "type": "null"
@@ -61,44 +70,91 @@
       ]
     },
     "area": {
+      "description": "Repository area affected by the observation, such as docs, tests, setup, tooling, or workflow.",
       "type": "string",
       "minLength": 1
     },
     "kind": {
+      "description": "Category of feedback so future agents can scan related records.",
       "type": "string",
       "enum": ["friction", "missing_instruction", "tooling", "setup", "verification", "documentation", "machine_specific", "other"]
     },
     "severity": {
+      "description": "Expected impact on future agent work if the observation is not addressed.",
       "type": "string",
       "enum": ["low", "medium", "high"]
     },
     "summary": {
+      "description": "One-sentence scan line describing the observation.",
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "description": "Full context future agents need to understand the observation without private logs or secrets.",
       "type": "string",
       "minLength": 1
     },
     "evidence": {
+      "description": "Sanitized evidence summary. Summarize relevant symptoms instead of pasting raw logs or private content.",
       "type": "string",
       "minLength": 1
     },
     "impact": {
+      "description": "Explanation of how the observation affects future agent efficiency, safety, verification, or setup.",
       "type": "string",
       "minLength": 1
     },
-    "suggested_action": {
-      "type": "string",
-      "minLength": 1
+    "suggested_actions": {
+      "description": "One or more possible actions that could address the observation before a decision is selected.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "rationale", "effort", "risk"],
+        "properties": {
+          "id": {
+            "description": "Stable suggested action identifier within this record, such as action-1.",
+            "type": "string",
+            "pattern": "^action-[0-9]+$"
+          },
+          "title": {
+            "description": "Short action title.",
+            "type": "string",
+            "minLength": 1
+          },
+          "rationale": {
+            "description": "Why this action may address the feedback.",
+            "type": "string",
+            "minLength": 1
+          },
+          "effort": {
+            "description": "Estimated implementation effort for this action.",
+            "type": "string",
+            "enum": ["low", "medium", "high"]
+          },
+          "risk": {
+            "description": "Estimated risk or blast radius for this action.",
+            "type": "string",
+            "enum": ["low", "medium", "high"]
+          }
+        }
+      }
     },
     "decision": {
+      "description": "Current outcome decision for the record.",
       "type": "string",
       "enum": ["undecided", "accepted", "declined", "transferred", "completed", "duplicate", "obsolete", "retained"]
     },
     "related_files": {
+      "description": "Repository-relative files that contain durable changes, evidence, or canonical follow-up context.",
       "type": "array",
       "items": {
         "type": "string"
       }
     },
     "plan": {
+      "description": "Selected action plan and progress tracker, or null before planning is useful.",
       "anyOf": [
         {
           "type": "null"
@@ -109,17 +165,24 @@
       ]
     },
     "sensitivity": {
+      "description": "Sanitization metadata for this record.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["sanitized", "notes"],
+      "required": ["sanitized", "classification", "redaction_notes"],
       "properties": {
         "sanitized": {
+          "description": "True only after reviewing the record for restricted content.",
           "type": "boolean",
           "const": true
         },
-        "notes": {
+        "classification": {
+          "description": "Remaining sensitivity after sanitization.",
           "type": "string",
-          "minLength": 1
+          "enum": ["public", "internal", "sensitive_redacted"]
+        },
+        "redaction_notes": {
+          "description": "Short note describing any redaction performed; leave empty when no redaction was needed.",
+          "type": "string"
         }
       }
     }

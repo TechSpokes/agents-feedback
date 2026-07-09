@@ -32,7 +32,7 @@ function runJson(args = []) {
 }
 
 test('text output includes required sections, counts, and no-attention marker', () => {
-  const result = runCli(['--root', validRoot]);
+  const result = runCli(['--root', validRoot, '--stale-days', '99999']);
 
   assert.equal(result.status, 0, result.stderr);
   assert.match(result.stdout, /Feedback State/);
@@ -50,7 +50,7 @@ test('text output includes required sections, counts, and no-attention marker', 
 });
 
 test('json output includes counts, records, and completed records sorted newest first', () => {
-  const payload = runJson(['--root', validRoot]);
+  const payload = runJson(['--root', validRoot, '--stale-days', '99999']);
 
   assert.equal(path.resolve(payload.root), validRoot);
   assert.deepEqual(payload.counts, {
@@ -78,7 +78,7 @@ test('json output includes counts, records, and completed records sorted newest 
 });
 
 test('--status filters records only', () => {
-  const payload = runJson(['--root', validRoot, '--status', 'planned']);
+  const payload = runJson(['--root', validRoot, '--status', 'planned', '--stale-days', '99999']);
 
   assert.deepEqual(payload.records.map((record) => record.status), ['planned']);
   assert.equal(payload.counts.completed, 2);
@@ -86,7 +86,7 @@ test('--status filters records only', () => {
 });
 
 test('--implemented aliases completed records', () => {
-  const payload = runJson(['--root', validRoot, '--implemented']);
+  const payload = runJson(['--root', validRoot, '--implemented', '--stale-days', '99999']);
 
   assert.equal(payload.records.length, 2);
   assert.ok(payload.records.every((record) => record.status === 'completed'));
