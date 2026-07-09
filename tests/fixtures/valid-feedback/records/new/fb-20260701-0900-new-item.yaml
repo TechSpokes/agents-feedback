@@ -1,0 +1,20 @@
+schema_version: feedback-record.v1
+id: fb-20260701-0900-new-item
+title: "New observation"
+status: new
+created_at: "2026-07-01T09:00:00Z"
+updated_at: "2099-01-01T00:00:00Z"
+completed_at: null
+area: "workflow"
+kind: friction
+severity: low
+summary: "A new workflow observation is ready for triage."
+evidence: "A sanitized fixture record demonstrates the new lifecycle state."
+impact: "Future agents can see untriaged feedback."
+suggested_action: "Review and decide whether to plan work."
+decision: undecided
+related_files: []
+plan: null
+sensitivity:
+  sanitized: true
+  notes: "No secrets, credentials, raw private logs, customer data, or private tokens."

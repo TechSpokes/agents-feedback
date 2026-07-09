@@ -1,0 +1,20 @@
+schema_version: feedback-record.v1
+id: fb-20200101-0000-stale-planned
+title: "Stale planned observation"
+status: planned
+created_at: "2000-01-01T00:00:00Z"
+updated_at: "2000-01-01T00:00:00Z"
+completed_at: null
+area: "workflow"
+kind: friction
+severity: medium
+summary: "A planned observation has not been updated recently."
+evidence: "A sanitized fixture record demonstrates stale detection."
+impact: "Future agents can identify planned work that needs attention."
+suggested_action: "Refresh the record or archive it."
+decision: accepted
+related_files: []
+plan: null
+sensitivity:
+  sanitized: true
+  notes: "No secrets, credentials, raw private logs, customer data, or private tokens."

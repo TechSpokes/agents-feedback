@@ -1,0 +1,23 @@
+{
+  "name": "agents-feedback",
+  "version": "1.0.0",
+  "description": "Portable .agents/feedback scaffold for repository-local agent workflow feedback.",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check:state": "node scaffold/.agents/feedback/tools/feedback-state.mjs --root scaffold/.agents/feedback",
+    "release:check": "npm test && npm run check:state"
+  },
+  "files": [
+    "scaffold",
+    "README.md",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "docs/specification.md"
+  ]
+}
