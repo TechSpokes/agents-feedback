@@ -1,0 +1,10 @@
+schema: feedback-record.v1
+id: fb-20260710-120200-hypothesis-only
+summary: The record has an unqualified possible cause.
+observation: A command failed from one working directory.
+paths:
+  - scripts
+created: "2026-07-10T12:02:00Z"
+updated: "2026-07-10T12:02:00Z"
+safety: public
+hypothesis: The command assumes a tools working directory.

@@ -1,55 +1,91 @@
-# Agent Instructions for feedback - Operational Mode
+# Agent Instructions for feedback Operational Mode
 
 ## Summary
 
-Use this folder to record sanitized agent observations that can improve future work in this repository. For routine feedback, the Summary and Must-follow rules are sufficient; read the full file before moving records between lifecycle folders or editing schemas, templates, or tools.
+Use this folder as a repository-local learning loop. Inspect relevant active feedback before substantial or unfamiliar work, record sanitized observations that can improve future work, and promote durable knowledge into normal repository artifacts.
 
-## Must-follow rules
+## Must-follow Rules
 
-- Record feedback only when the observation is actionable, repeated, surprising, or likely to improve future agent efficiency.
-- Do not use this folder for normal task status, private scratch notes, project memory, or canonical documentation.
-- Never include secrets, credentials, raw tokens, customer data, private issue text, screenshots, large logs, or raw private logs.
-- Keep each record `status` field aligned with the folder containing the record.
-- Promote durable rules to the repository's canonical instructions, docs, scripts, or tests before marking feedback completed.
-- Keep plans shallow. Move large implementation plans into normal repository docs.
+- Treat feedback records as observations and decision history, not canonical instructions.
+- Do not use this folder for task status, scratch notes, general memory, project changelogs, or canonical documentation.
+- Never store secrets, credentials, raw tokens, customer data, private issue text, screenshots, large logs, or raw private logs.
+- Keep shared records suitable for the repository's visibility.
+- Treat local instructions as additive and lower priority than root repository instructions and these shared rules.
+- Allow only a maintainer or explicitly delegated agent to triage unrelated shared feedback.
+- Promote durable knowledge into normal instructions, docs, scripts, tests, or code before completion.
 
-## Must-read documents
+## Before Substantial or Unfamiliar Work
 
-- `README.md` explains folder purpose and boundaries.
-- `records/README.md` explains lifecycle folder meanings.
-- `templates/record.yaml` provides the required record shape.
-- `templates/plan.yaml` provides the optional plan section shape.
+Run the active brief when Node.js 22 or newer is available:
 
-## Record Creation
+```bash
+node .agents/feedback/tools/feedback-state.mjs --active --brief
+```
 
-Create records in `records/new/` from `templates/record.yaml`. Use an `id` and filename that start with `fb-YYYYMMDD-HHMM-short-slug`.
+Add `--area <area>` or `--path <path>` when useful. The default scan includes ignored local records. Use `--shared-only` for shared-only reporting.
 
-Use `summary` for a one-sentence scan line. Use `description` for the full context future agents need. Use `suggested_actions` for one or more possible fixes before a decision is selected.
+If Node.js is unavailable, inspect the active shared lifecycle folders and `local/records/` when it exists. Open only records relevant to the current work. Skip this check for trivial edits where feedback cannot materially affect the task.
 
-Sanitize data before writing. Summarize evidence instead of pasting raw logs, private issue text, credentials, tokens, customer data, screenshots, machine-specific secrets, or large logs.
+Read `local/AGENTS.md` when it exists. It may add secret-free machine context and preferences, but it cannot weaken repository or shared feedback rules.
 
-## Planning
+## Before Creating a Record
 
-Use `plan` only after a suggested action has been selected. A plan is both the selected implementation plan and a progress tracker for the feedback record.
+Search active shared and local feedback for the same observation. Update a match instead of creating a duplicate.
 
-Keep `phases` and nested `tasks` concise. If the work needs deep planning or multiple sessions, promote the durable plan to the repository's normal docs and link it from `related_files` or `evidence`.
+For a repeated observation, update `updated`, refine sanitized `evidence`, add new `paths`, and set or increment `occurrences`. Create a shared record in `records/new/` or a local record in `local/records/new/` only when no match exists.
+
+State what happened in `observation`. Put possible causes in `hypothesis` with `confidence`. Use forward-slash repository-relative `paths`; never store absolute paths.
+
+## Shared and Local Scope
+
+Shared records under `records/` are normally committed. Generalize relevant machine context with `environment` and remove usernames, hostnames, device identifiers, and absolute paths.
+
+Local files under `local/` remain ignored. Keep them secret-free. Promote useful local feedback explicitly by sanitizing and generalizing it before creating or updating a shared record.
+
+## Safety Review
+
+New drafts start with `safety: unreviewed`. Before committing, handing off, accepting, or completing a shared record, set `safety: public` after review. Use `internal` only when repository visibility and policy explicitly permit internal material.
+
+Describe removed or generalized content in `redactions`. Never copy the restricted source material into the record.
+
+## Triage Authority
+
+A new record has no `decision`. Only a maintainer or an agent explicitly delegated by the current task or repository policy may accept, decline, archive, or transfer unrelated shared feedback.
+
+- `planned`, `in_progress`, `in_review`, and `completed` require `decision.status: accepted`.
+- `archived` requires `declined`, `duplicate`, `obsolete`, `transferred`, or `retained`.
+- Accepted decisions select one candidate action.
+- Duplicate and transferred decisions link to the canonical or external destination.
+
+## Plans
+
+Use an inline plan only for small local improvements. Plans contain flat tasks; one to seven tasks is preferred.
+
+Move work requiring broad coordination, several sessions, or architecture decisions into the repository's normal issue or planning system and reference it through `links`.
 
 ## Lifecycle
 
-Move records forward only when their state changes. Use `planned/` when an action is selected, `in_progress/` while implementing it, `in_review/` when validation or owner review is needed, and `completed/` when resolved with evidence.
+The containing folder is the only lifecycle state:
 
-Use `archived/` from any lifecycle state for duplicate, obsolete, declined, transferred, or intentionally retained records. Update the record `status`, `updated_at`, `decision`, and `plan` fields when moving a record.
+```text
+new -> planned -> in_progress -> in_review -> completed
+any state -> archived
+```
 
-Set `completed_at` only for completed records. Leave `completed_at` as `null` in all other lifecycle folders.
+Records do not contain a lifecycle `status` key. Move a record only when its lifecycle changes.
 
-## Completion Rules
+## Completion
 
-Before moving a record to `completed/`, promote any durable rule to the repository's canonical `AGENTS.md`, README, docs, scripts, or tests. The completed record should point to the durable location in `related_files` or `evidence`.
+Before moving a record to `completed/`, promote durable knowledge, add durable repository paths and useful links, finish the inline plan or external work, include sanitized evidence, set `completed`, and move the record.
 
-## Sensitivity
-
-Set `sensitivity.sanitized` to `true` only after reviewing the record for restricted content. Use `sensitivity.classification` to describe the remaining sensitivity level and `sensitivity.redaction_notes` to summarize any redaction performed.
+The completed record preserves the learning trail. It is not the durable rule itself.
 
 ## References
 
-- `tools/feedback-state.mjs` summarizes record counts, stale records, mismatches, and completed improvements when installed.
+- `README.md` explains the folder and boundaries.
+- `records/README.md` defines lifecycle and triage.
+- `templates/record.yaml` is the record template.
+- `templates/plan.yaml` is the optional plan template.
+- `schemas/record.schema.json` and `schemas/plan.schema.json` define the sole supported contracts.
+- `local/README.md` defines per-clone additions.
+- `tools/feedback-state.mjs` summarizes, filters, and checks feedback state.

@@ -20,20 +20,21 @@ test('release notes path and title are derived from tag', () => {
   assert.equal(releaseTitleForTag('v1.0.0'), 'agents-feedback v1.0.0');
 });
 
-test('v1 release notes satisfy the release body contract', () => {
-  const notesPath = path.join(repoRoot, releaseNotesPathForTag('v1.0.0'));
-  const result = verifyReleaseNotes(notesPath, 'v1.0.0');
-
-  assert.deepEqual(result.errors, []);
-  assert.equal(result.ok, true);
+test('all retained release notes satisfy the release body contract', () => {
+  for (const tag of ['v1.0.0', 'v1.1.0']) {
+    const notesPath = path.join(repoRoot, releaseNotesPathForTag(tag));
+    const result = verifyReleaseNotes(notesPath, tag);
+    assert.deepEqual(result.errors, [], tag);
+    assert.equal(result.ok, true, tag);
+  }
 });
 
 test('release notes body strips the top-level title only', () => {
-  const notesPath = path.join(repoRoot, releaseNotesPathForTag('v1.0.0'));
+  const notesPath = path.join(repoRoot, releaseNotesPathForTag('v1.1.0'));
   const body = releaseNotesBody(notesPath);
 
-  assert.ok(body.startsWith('## Agent-Installable Feedback Scaffold\n'));
-  assert.ok(!body.includes('# agents-feedback v1.0.0'));
+  assert.ok(body.startsWith('## Repository-Local Learning Loop\n'));
+  assert.ok(!body.includes('# agents-feedback v1.1.0'));
 });
 
 test('release notes validation reports malformed files', () => {
@@ -56,4 +57,23 @@ test('release notes validation reports malformed files', () => {
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((error) => error.includes('missing required section: What This Provides')));
   assert.ok(result.errors.some((error) => error.includes('missing H2 subtitle before What This Provides')));
+});
+
+test('active user documentation identifies the ZIP as the installation asset', () => {
+  const surfaces = [
+    'README.md',
+    'SUPPORT.md',
+    'docs/specification.md',
+    'docs/releases/README.md',
+    'docs/releases/v1.1.0.md',
+    'scaffold/.agents/feedback/README.md',
+  ];
+
+  for (const relativePath of surfaces) {
+    const content = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(content, /\.zip/i, `${relativePath} does not name the ZIP`);
+    assert.match(content, /sha256/i, `${relativePath} does not explain the checksum`);
+    assert.match(content, /(optional|verification|verify)/i, `${relativePath} does not describe checksum purpose`);
+    assert.match(content, /(not extracted|do not extract|never extracted)/i, `${relativePath} does not say not to extract the checksum`);
+  }
 });

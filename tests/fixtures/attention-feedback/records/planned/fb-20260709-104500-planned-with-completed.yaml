@@ -1,0 +1,25 @@
+schema: feedback-record.v1
+id: fb-20260709-104500-planned-with-completed
+summary: A planned record contains a completion timestamp.
+observation: Completion was set before the lifecycle reached completed.
+paths:
+  - docs
+created: "2026-07-09T10:45:00Z"
+updated: "2026-07-09T10:45:00Z"
+safety: public
+area: docs
+kind: documentation
+severity: low
+evidence: The record contains a completed field in the planned folder.
+actions:
+  - id: action-1
+    action: Remove the premature completion timestamp.
+    reason: Folder lifecycle remains authoritative.
+    effort: low
+    risk: low
+decision:
+  status: accepted
+  reviewer: maintainer
+  reason: The lifecycle correction is selected.
+  action: action-1
+completed: "2026-07-09T10:45:00Z"

@@ -1,0 +1,10 @@
+schema: feedback-record.v1
+id: fb-20260710-120600-occurrences-one
+summary: The first occurrence redundantly stores a counter.
+observation: Occurrences was set to one instead of being omitted.
+paths:
+  - docs
+created: "2026-07-10T12:06:00Z"
+updated: "2026-07-10T12:06:00Z"
+safety: public
+occurrences: 1

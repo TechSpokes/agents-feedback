@@ -200,7 +200,7 @@ The project exists because many repositories lack a durable place for agents to 
 
 - [ ] **Step 3: Create root `README.md`**
 
-Create `README.md` with a project description, a quick start, the install model, and license indication.
+Create `README.md` with a project description, a quick start, the installation model, and license indication.
 
 ````markdown
 # agents-feedback
@@ -1000,7 +1000,7 @@ Update `README.md` with two supported installation modes:
 
 - [ ] **Step 2: Document bootstrap switch**
 
-Update `docs/specification.md` to state that the install process is complete only after `.agents/feedback/AGENTS.md` has been replaced with `AGENTS.final.md` in the target repository.
+Update `docs/specification.md` to state that the installation process is complete only after `.agents/feedback/AGENTS.md` has been replaced with `AGENTS.final.md` in the target repository.
 
 - [ ] **Step 3: Create release notes without a changelog**
 
@@ -1112,7 +1112,7 @@ Expected after approval: GitHub Actions passes on `main`.
 
 ## Self-Review Checklist
 
-- [ ] The plan initializes the repository and produces a releaseable v1.
+- [ ] The plan initializes the repository and produces a releasable v1.
 - [ ] The installed scaffold remains dependency-free.
 - [ ] The design avoids a changelog for implemented feedback records.
 - [ ] Completed feedback can be reported from YAML records by `feedback-state.mjs`.

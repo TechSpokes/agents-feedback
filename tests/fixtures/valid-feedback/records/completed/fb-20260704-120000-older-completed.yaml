@@ -1,0 +1,25 @@
+schema: feedback-record.v1
+id: fb-20260704-120000-older-completed
+summary: The setup guide now names the required working directory.
+observation: The prior setup command omitted its required working directory.
+paths:
+  - docs/setup.md
+created: "2026-07-04T10:00:00Z"
+updated: "2026-07-04T12:00:00Z"
+safety: public
+area: docs
+kind: documentation
+severity: low
+evidence: The setup guide and its smoke check now use the correct directory.
+actions:
+  - id: action-1
+    action: Document the working directory.
+    reason: The command becomes reproducible.
+    effort: low
+    risk: low
+decision:
+  status: accepted
+  reviewer: maintainer
+  reason: The documentation fix is verified.
+  action: action-1
+completed: "2026-07-04T12:00:00Z"

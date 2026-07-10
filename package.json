@@ -1,7 +1,7 @@
 {
   "name": "agents-feedback",
-  "version": "1.0.0",
-  "description": "Portable .agents/feedback scaffold for repository-local agent workflow feedback.",
+  "version": "1.1.0",
+  "description": "Portable .agents/feedback learning loop for shared and local agent workflow feedback.",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -23,5 +23,11 @@
     "CONTRIBUTING.md",
     "LICENSE",
     "docs/specification.md"
-  ]
+  ],
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "yaml": "2.9.0"
+  }
 }

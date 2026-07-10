@@ -1,0 +1,24 @@
+schema: feedback-record.v1
+id: fb-20200101-000000-stale-planned
+summary: This accepted record has not been updated within the stale window.
+observation: The record remains planned after its expected review date.
+paths:
+  - docs
+created: "2020-01-01T00:00:00Z"
+updated: "2020-01-01T00:00:00Z"
+safety: public
+area: docs
+kind: documentation
+severity: low
+evidence: The updated timestamp remains unchanged.
+actions:
+  - id: action-1
+    action: Review the record.
+    reason: Confirm whether the improvement is still useful.
+    effort: low
+    risk: low
+decision:
+  status: accepted
+  reviewer: maintainer
+  reason: The documentation change was selected.
+  action: action-1

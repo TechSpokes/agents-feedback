@@ -1,195 +1,340 @@
 # Agents Feedback Scaffold Specification
 
-The agents feedback scaffold gives agents a dedicated repository-local folder for observations that can improve future work inside that repository. It ships as an agent-assisted installer artifact, not as an application.
-
 ## Purpose
 
-The scaffold provides a small `.agents/feedback` protocol for recording sanitized agent feedback inside a repository. It helps future agents find known workflow friction, planned improvements, active fixes, review items, and completed efficiency improvements without creating a platform.
+The agents feedback scaffold is a repository-local learning loop for humans and coding agents. It helps future work consume relevant observations before repeating known workflow friction, capture new evidence, triage improvements, and promote durable knowledge into normal repository artifacts.
 
-The repository maintains the source scaffold under `scaffold/.agents/feedback`. Release artifacts package that source so extraction at a target repository root creates `.agents/feedback`.
+The repository maintains source under `scaffold/.agents/feedback`. Release artifacts package that source so fresh extraction at a target repository root creates `.agents/feedback`.
 
-## Agent-Assisted Installation Model
-
-The only supported v1 installation model is agent-assisted installation. A user extracts the release artifact at the target repository root, confirms `.agents/feedback/AGENTS.md` exists, and instructs an agent to read that file. The bootstrap instructions then guide the agent through root hook wiring, verification, and conversion to operational mode.
-
-Installation is complete only after the root instruction file contains the managed feedback hook, the state script exits successfully, and `.agents/feedback/AGENTS.md` has been replaced with `.agents/feedback/AGENTS.final.md`.
-
-The installed scaffold must not require package installation, a database, or a background service. The installer may edit the target repository root instruction file because the user explicitly directed an agent to complete installation.
-
-## Non-Goals
+## Product Boundaries
 
 - The scaffold is not long-term memory.
 - The scaffold is not a general task tracker.
 - The scaffold is not canonical project documentation.
 - The scaffold is not a project changelog.
-- The scaffold is not a replacement for tests, scripts, or repository instructions.
-- The scaffold is not a place for secrets, credentials, raw private logs, customer data, private tokens, private issue text, screenshots, or large logs.
+- The scaffold is not a replacement for tests, scripts, issues, or repository instructions.
 - The scaffold is not a service, database, or package-managed application.
+- Shared and local feedback must not contain secrets, credentials, raw private logs, customer data, private tokens, private issue text, screenshots, or large logs.
 
-## Root Instruction Hook
+## Installed Layout
 
-The root hook must be managed and idempotent. Agents must preserve unrelated root instruction content and add or update only the block between `agents-feedback:start` and `agents-feedback:end`.
+```text
+.agents/feedback/
+  AGENTS.md
+  AGENTS.final.md
+  INSTALL.md
+  UPGRADE.md
+  README.md
+  local/
+    .gitignore
+    README.md
+  records/
+    README.md
+    new/
+    planned/
+    in_progress/
+    in_review/
+    completed/
+    archived/
+  schemas/
+    record.schema.json
+    plan.schema.json
+  templates/
+    record.yaml
+    plan.yaml
+    root-agents-hook.md
+  tools/
+    feedback-state.mjs
+```
+
+The artifact contains no user records or personal local content. Empty shared lifecycle folders are retained with placeholder files.
+
+## Fresh Installation
+
+Fresh installation is agent-assisted:
+
+1. Download `agents-feedback-vX.Y.Z.zip`; do not treat the optional `.zip.sha256` checksum file as an installation archive.
+2. Extract the ZIP at a repository root that does not already contain an installation.
+3. Ask an agent to read `.agents/feedback/AGENTS.md`.
+4. Add or update only the bounded root instruction hook.
+5. Verify with Node.js 22 or newer when available.
+6. Use the documented structural fallback when Node.js is unavailable or older.
+7. Replace installer `AGENTS.md` with `AGENTS.final.md` only after verification succeeds.
+
+Attention items reported by the state helper do not fail installation. Invalid arguments, an unreadable root, or a missing shared `records/` directory fail automated verification.
+
+## Staged Upgrade
+
+Never extract a new artifact directly over an existing `.agents/feedback`. Existing installations use a temporary staging directory because instructions inside an artifact cannot protect records before direct extraction occurs.
+
+The upgrading agent preserves all installed shared records, all personal local content, and unrelated root instructions. It replaces managed instructions, schemas, templates, helper code, `records/README.md`, `local/README.md`, and `local/.gitignore` from staging.
+
+The agent records shared and local path sets before the upgrade and confirms that preserved paths remain afterward. Existing records are not rewritten automatically.
+
+## Managed Root Hook
+
+The root hook is bounded and idempotent. Agents preserve unrelated root instruction content and add or update only the block between `agents-feedback:start` and `agents-feedback:end`.
 
 ```markdown
 <!-- agents-feedback:start -->
 ## Repository Feedback
 
-For repository workflow feedback, read `.agents/feedback/AGENTS.md` before creating or updating feedback records. Use `.agents/feedback` for sanitized observations that could improve future agent work in this repository.
+Before substantial or unfamiliar work, read `.agents/feedback/AGENTS.md` and inspect relevant active feedback. Treat feedback as observations, not canonical instructions.
+
+Read `.agents/feedback/AGENTS.md` before creating, moving, accepting, archiving, or completing feedback records.
 <!-- agents-feedback:end -->
 ```
 
+CLI details remain in the installed operational instructions so the root hook stays short.
+
+## Shared and Local Scope
+
+Shared records live under `records/<lifecycle>/` and are normally committed. They contain repository-relative paths and generalized environment context suitable for the repository's visibility.
+
+Per-clone additions live under `local/`. The tracked `local/.gitignore` keeps personal additions ignored while retaining `local/.gitignore` and `local/README.md` in the artifact.
+
+Optional `local/AGENTS.md` instructions are additive and lower priority than root repository instructions and shared scaffold rules. They cannot weaken safety, lifecycle, triage authority, or repository policy.
+
+Optional local records use the same schema and lifecycle folders under `local/records/`. Local files remain secret-free despite being ignored.
+
+Promotion from local to shared is explicit. The agent sanitizes and generalizes the content, removes machine identity and absolute paths, reviews safety, and creates or updates a matching shared record.
+
 ## Lifecycle
 
-Feedback records move through lifecycle folders:
+The containing folder is the only lifecycle state:
 
 ```text
 new -> planned -> in_progress -> in_review -> completed
 any state -> archived
 ```
 
-Lifecycle states have these meanings:
-
-| State | Meaning |
+| Folder | Meaning |
 | --- | --- |
 | `new` | Untriaged observation. |
-| `planned` | Action has been selected but work has not started. |
-| `in_progress` | Improvement is being implemented. |
-| `in_review` | Improvement exists and needs validation or owner review. |
-| `completed` | Improvement has landed or the record has been resolved with evidence. |
-| `archived` | Duplicate, obsolete, declined, transferred, or retained historical record. |
+| `planned` | Accepted improvement whose work has not started. |
+| `in_progress` | Accepted improvement being implemented. |
+| `in_review` | Accepted improvement awaiting validation or owner review. |
+| `completed` | Resolved feedback with completion evidence. |
+| `archived` | Declined, duplicate, obsolete, transferred, or retained history. |
 
-The `archived` state can be reached from any state. The `status` field inside each YAML record must match the folder that contains the file.
+Records do not contain a lifecycle status field.
 
 ## Record Contract
 
-Each feedback record is a YAML file under `.agents/feedback/records/<status>/`. The filename must start with the record `id`, such as `fb-20260709-0830-shell-startup-friction.yaml`.
+`schemas/record.schema.json` is the sole record schema. Every record uses `schema: feedback-record.v1`.
 
-Records must follow `schemas/record.schema.json` and use `schema_version: feedback-record.v1`. Required top-level fields are shown by the template:
+The filename starts with the record ID. IDs use UTC date and time including seconds:
 
-```yaml
-schema_version: feedback-record.v1
-id: fb-YYYYMMDD-HHMM-short-slug
-title: ""
-status: new
-created_at: "YYYY-MM-DDTHH:MM:SSZ"
-updated_at: "YYYY-MM-DDTHH:MM:SSZ"
-completed_at: null
-area: ""
-kind: friction
-severity: low
-summary: ""
-description: ""
-evidence: ""
-impact: ""
-suggested_actions: []
-decision: undecided
-related_files: []
-plan: null
-sensitivity:
-  sanitized: true
-  classification: public
-  redaction_notes: ""
+```text
+fb-YYYYMMDD-HHMMSS-short-slug
 ```
 
-The `summary` field is a one-sentence scan line. The `description` field is the fuller explanation that gives future agents enough context to understand the observation.
+### Required Capture Fields
 
-The `suggested_actions` field is an array so a record can preserve multiple possible fixes before one is selected. Each action contains `id`, `title`, `rationale`, `effort`, and `risk`.
+```yaml
+schema: feedback-record.v1
+id: fb-YYYYMMDD-HHMMSS-short-slug
+summary: ""
+observation: ""
+paths:
+  - .
+created: "YYYY-MM-DDTHH:MM:SSZ"
+updated: "YYYY-MM-DDTHH:MM:SSZ"
+safety: unreviewed
+```
 
-Valid statuses are `new`, `planned`, `in_progress`, `in_review`, `completed`, and `archived`. The `completed_at` field must be set when a record is completed and must be `null` until completion.
+`summary` is a one-sentence scan line with a maximum length of 180 characters. `observation` states what happened without assuming the cause.
 
-Valid decisions are `undecided`, `accepted`, `declined`, `transferred`, `completed`, `duplicate`, `obsolete`, and `retained`. Use `duplicate`, `obsolete`, or `retained` for archived records when those values describe the outcome more accurately than `declined` or `transferred`.
+`paths` contains one or more repository-relative files or directories. Stored paths use forward slashes on every platform. Absolute paths, parent traversal, and backslashes are invalid. A single dot represents genuinely repository-wide feedback.
 
-The `sensitivity` block records the result of the sanitization check. Safety policy belongs in instructions and schema descriptions, not as copied boilerplate in every record.
+`created` and `updated` are UTC timestamps. `safety` is `unreviewed`, `public`, or `internal`.
+
+### Optional Classification and Evidence
+
+`area` is a stable lowercase repository area used for exact filtering. `kind` is `unknown`, `instruction`, `setup`, `tooling`, `workflow`, `verification`, `documentation`, `environment`, or `other`.
+
+`severity` is `unknown`, `low`, `medium`, or `high`. Missing classification normalizes to `unknown` during discovery. Records should be classified after the `new` lifecycle.
+
+`evidence` contains sanitized support for the observation. `impact` describes the effect on efficiency, correctness, safety, setup, or verification.
+
+`occurrences` is omitted for the first observation. Set it to `2` or more after materially separate confirmations.
+
+### Environment Context
+
+`environment` may include generalized `os`, `shell`, `architecture`, and tool version values. It never includes usernames, hostnames, device identifiers, credentials, or absolute paths.
+
+### Analysis
+
+`hypothesis` contains a possible cause and must appear with `confidence`. Confidence is `low`, `medium`, or `high` and applies to the hypothesis rather than the observed event.
+
+`reproduction` contains minimal secret-free verification steps.
+
+### Candidate Actions
+
+```yaml
+actions:
+  - id: action-1
+    action: "Document the required working directory."
+    reason: "The setup command becomes reproducible."
+    effort: low
+    risk: low
+```
+
+Effort and risk use `unknown`, `low`, `medium`, or `high`. Action identifiers must be unique within a record.
+
+### Decision
+
+New records omit `decision`. A decision contains `status`, `reviewer`, and `reason`.
+
+Allowed decision outcomes are `accepted`, `declined`, `duplicate`, `obsolete`, `transferred`, and `retained`. Accepted decisions require candidate actions and select one action ID. Other outcomes do not contain a selected action.
+
+Duplicate and transferred decisions require `links` to the canonical record or external destination.
+
+Only a maintainer or an agent explicitly delegated by the current task or repository policy may triage unrelated shared feedback.
+
+### Safety
+
+Drafts start with `safety: unreviewed`. Shared records must be reviewed before commit, handoff, acceptance, or completion.
+
+Public repositories commit only `safety: public` records. `internal` is allowed only when repository visibility and policy explicitly permit internal material.
+
+`redactions` contains short descriptions of removed or generalized content. It never repeats restricted source material.
+
+## Folder Invariants
+
+| Folder | Required decision | Completion |
+| --- | --- | --- |
+| `new` | No decision | No completion timestamp |
+| `planned` | Accepted | No completion timestamp |
+| `in_progress` | Accepted | No completion timestamp |
+| `in_review` | Accepted | No completion timestamp |
+| `completed` | Accepted | Reviewed safety and completion timestamp required |
+| `archived` | Archival outcome | No completion timestamp |
+
+The state helper checks folder-dependent rules that JSON Schema cannot infer from a file's location.
 
 ## Plan Contract
 
-The `plan` field is optional and may be `null`. When present, it must follow `schemas/plan.schema.json` and use `schema_version: feedback-plan.v1`.
-
-Plans describe the selected improvement action and current progress for a feedback record. Plans should stay shallow: one or two task nesting levels are preferred, and larger work should move into normal repository planning docs.
+`schemas/plan.schema.json` is the sole plan schema. Plans use `schema: feedback-plan.v1`.
 
 ```yaml
-schema_version: feedback-plan.v1
-objective: ""
+schema: feedback-plan.v1
 owner: agent
-status: planned
-source_action_id: null
-phases:
-  - id: phase-1
-    title: ""
+tasks:
+  - id: task-1
+    task: "Update the setup guide."
     status: planned
-    tasks:
-      - id: task-1
-        title: ""
-        instructions: ""
-        status: planned
-        validation: ""
-        evidence: ""
-        tasks: []
-outcome:
-  status: pending
-  notes: ""
+    validation: "Run the documented setup from a clean checkout."
 ```
 
-Plan statuses are `planned`, `in_progress`, `in_review`, `completed`, and `archived`. Task statuses are `planned`, `in_progress`, `blocked`, `done`, and `skipped`. Outcome statuses are `pending`, `completed`, and `archived`.
+Owner is `agent`, `human`, or `mixed`. Task status is `planned`, `active`, `blocked`, `done`, or `skipped`. Task evidence and a plan outcome are optional.
 
-## State Script Contract
+Tasks are flat. One to seven tasks is preferred guidance, not a validity limit. Work requiring broad coordination, several sessions, or architecture decisions belongs in normal repository planning and is referenced through record links.
 
-The state script lives at `.agents/feedback/tools/feedback-state.mjs`. It must use Node.js built-ins only.
+## Duplicate Handling
 
-Supported flags are:
+Before creating a record, agents inspect active shared and local feedback for the same observation.
+
+When a match exists, update `updated`, refine sanitized `evidence`, add new affected paths, set or increment `occurrences`, and adjust classification only when justified. Do not create another record.
+
+If a duplicate record exists, archive it with `decision.status: duplicate` and link to the canonical record.
+
+## Completion
+
+Before moving a record to `completed`, promote durable knowledge into normal repository instructions, docs, scripts, tests, or code. Add durable paths and useful links, finish the inline plan or external work, include sanitized evidence, set `completed`, and move the file.
+
+Completed records are the learning trail. They are not the durable rule itself.
+
+## State Helper
+
+The installed `tools/feedback-state.mjs` uses Node.js built-ins only and supports Node.js 22 or newer.
+
+### Options
 
 ```text
 --root <path>
---format text
---format json
+--format text|json
 --status <status>
 --implemented
 --stale-days <number>
+--active
+--brief
+--area <area>
+--path <path>
+--shared-only
 --help
 ```
 
-The default root is the parent folder of the script's `tools/` directory. The default format is `text`. The default stale window is `14` days.
+The default root is the parent of the script's `tools/` directory. The default format is text. The default stale window is 14 days.
 
-`--format text` prints `Feedback State`, `Counts`, `Needs Attention`, `Records`, and `Completed` sections.
+`--active` selects `new`, `planned`, `in_progress`, and `in_review`. It conflicts with `--status` and `--implemented`.
 
-`--format json` prints one JSON object with `root`, `counts`, `needs_attention`, `records`, and `completed` properties.
+`--implemented` aliases `--status completed`. `--area` and `--path` combine with AND semantics.
 
-`--status <status>` filters the `records` list only. Counts and needs-attention analysis still use all records.
+Path matching normalizes filter separators and supports exact, ancestor, and descendant matches on segment boundaries. A stored dot matches every requested repository path. Substring-only matches are invalid.
 
-`--implemented` aliases `--status completed` and is mutually exclusive with `--status`.
+The helper scans shared and local records by default. `--shared-only` excludes local records.
 
-`--stale-days <number>` controls stale detection for `planned`, `in_progress`, and `in_review`.
+### Output
 
-The script exits `0` for successful analysis even when records need attention.
+Default text output contains `Feedback State`, `Counts`, `Scope Counts`, `Needs Attention`, `Records`, and `Completed` sections.
 
-The script exits `1` for invalid CLI args, unreadable roots, or missing `records/`.
+Default JSON contains `root`, aggregate `counts`, `scope_counts`, `needs_attention`, normalized `records`, and normalized `completed` records.
 
-## Safety Rules
+Brief text begins with `Feedback` and lists normalized records with scope, lifecycle, ID, area, severity, summary, and source path. Brief JSON contains `root` and sorted normalized records.
 
-- Do not store secrets, credentials, raw tokens, customer data, private issue text, screenshots, large logs, or private logs in feedback records.
-- Sanitize evidence before writing it to `.agents/feedback`.
-- Keep feedback actionable and repository-specific.
-- Promote durable rules to canonical repository instructions, docs, scripts, or tests before marking related feedback completed.
-- Keep the installed scaffold portable and dependency-free.
-- Do not add background services or automatic non-agent root instruction mutation for v1.
+Brief sorting uses severity, updated time descending, ID, and scope.
+
+### Bounded Parser
+
+The helper is not a general YAML parser. It reads state-relevant top-level scalars, path and link string arrays, nested decision fields, action identifiers, and inline plan task statuses.
+
+Multiline analysis bodies that do not affect discovery may be ignored. Complete instance validation belongs to repository checks using YAML and Ajv.
+
+### Attention
+
+Attention includes missing capture fields, duplicate IDs, invalid schema identifiers, unsafe paths, unreviewed safety, invalid hypothesis pairs, stale active records, folder and decision violations, missing action references, duplicate action IDs, missing duplicate links, missing accepted evidence, unknown classification after `new`, invalid completion placement, and unfinished inline plans on completed records.
+
+Attention remains informational. Successful analysis exits `0` even when attention exists. Invalid CLI arguments, unreadable roots, and missing shared records directories exit `1`.
+
+## Repository Validation
+
+Repository checks use Node.js 24 with pinned repository-only Ajv, Ajv formats, and YAML development dependencies.
+
+Validation covers complete valid and invalid YAML fixtures, schema descriptions, concise templates, shared and local state behavior, installer and upgrade instructions, local Git ignore behavior, release notes, artifact allowlists, reproducible ZIP hashes, checksums, and manifest contents.
+
+The installed artifact excludes repository dependencies and validation tooling.
+
+## Release Artifact
+
+`npm run artifact:build` creates:
+
+```text
+dist/agents-feedback-vX.Y.Z.zip
+dist/agents-feedback-vX.Y.Z.zip.sha256
+dist/artifact-manifest.json
+```
+
+The ZIP is the user installation download. The `.zip.sha256` file is optional checksum metadata used to verify the ZIP and is never extracted. The manifest is repository release evidence and is not a user installation asset.
+
+The ZIP uses fixed metadata and ordinal entry ordering so identical source produces identical hashes. The manifest file list matches ZIP entries.
+
+The artifact contains `.agents/feedback` at its root. It excludes `package.json`, `node_modules`, test fixtures, shared feedback YAML, and personal local content.
 
 ## Release Criteria
 
-- The release artifact expands to `.agents/feedback`.
-- Bootstrap `AGENTS.md` can guide an agent through installation without external instructions.
-- Operational `AGENTS.final.md` instructions are present.
-- `INSTALL.md` defines installation verification and conversion steps.
-- The root hook template is managed and idempotent.
-- Lifecycle folders exist for `new`, `planned`, `in_progress`, `in_review`, `completed`, and `archived`.
-- Record and plan templates exist.
-- Record and plan schemas contain descriptions for every property.
-- Templates explain field intent in comments without copying policy boilerplate into record values.
-- The state script implements the documented CLI semantics.
-- Repository release checks validate schemas, templates, fixtures, state output, and artifact layout.
-- Tests cover text output, JSON output, status filtering, implemented filtering, stale detection, mismatches, missing fields, installer instructions, contract checks, and artifact layout.
-- CI runs the release checks.
-- Tag workflows create or update a draft GitHub Release with a zip artifact, checksum, and release body read from `docs/releases/<tag>.md`.
-- Public repository support files exist for changelog, security policy, support routing, code of conduct, code ownership, issue intake, pull requests, and GitHub Actions dependency updates.
-- `docs/releases/README.md` defines release note file requirements.
-- `docs/releases/v1.0.0.md` defines the v1 release body without becoming a feedback record changelog.
-- Tag and push steps are documented as approval-gated and are not run without explicit maintainer approval.
+- The package version and release note tag match.
+- Fresh extraction creates `.agents/feedback`.
+- Fresh installer instructions support Node.js and manual verification.
+- Upgrade instructions require temporary staging and preservation.
+- The root hook is bounded and idempotent.
+- Shared and local scopes are distinct and tested.
+- Record and plan schemas are the sole v1 contracts.
+- Templates expose the required capture shape.
+- The state helper implements documented discovery and attention behavior.
+- Complete contract, state, installer, release-note, and artifact tests pass.
+- Two artifact builds produce the same SHA-256 hash.
+- ZIP entries match the artifact manifest.
+- CI runs `npm run release:check`.
+- Tag workflows create or update a draft GitHub Release with the ZIP and checksum.
+- Tagging, pushing, drafting, and publication remain maintainer-approved actions.

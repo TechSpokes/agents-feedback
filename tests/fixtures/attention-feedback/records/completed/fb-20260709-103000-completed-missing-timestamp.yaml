@@ -1,0 +1,24 @@
+schema: feedback-record.v1
+id: fb-20260709-103000-completed-missing-timestamp
+summary: A completed record has no completion timestamp.
+observation: The file moved to completed without setting completed.
+paths:
+  - docs
+created: "2026-07-09T10:30:00Z"
+updated: "2026-07-09T10:30:00Z"
+safety: public
+area: docs
+kind: documentation
+severity: medium
+evidence: The completed field is absent.
+actions:
+  - id: action-1
+    action: Add the verified completion timestamp.
+    reason: Completion evidence needs a time.
+    effort: low
+    risk: low
+decision:
+  status: accepted
+  reviewer: maintainer
+  reason: The underlying work is complete.
+  action: action-1

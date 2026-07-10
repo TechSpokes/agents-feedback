@@ -1,0 +1,13 @@
+schema: feedback-record.v1
+id: fb-20260710-120400-duplicate-without-links
+summary: A duplicate decision does not identify the canonical record.
+observation: Triage marked this record as a duplicate without a link.
+paths:
+  - docs
+created: "2026-07-10T12:04:00Z"
+updated: "2026-07-10T12:04:00Z"
+safety: public
+decision:
+  status: duplicate
+  reviewer: maintainer
+  reason: The observation exists elsewhere.

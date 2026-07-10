@@ -1,0 +1,33 @@
+schema: feedback-record.v1
+id: fb-20260704-090000-review-item
+summary: API client errors hide the failing request path.
+observation: A failed client request reports the status code without the repository endpoint path.
+paths:
+  - packages/api/client.js
+created: "2026-07-04T09:00:00Z"
+updated: "2026-07-04T11:00:00Z"
+safety: public
+area: tooling
+kind: tooling
+severity: high
+evidence: A sanitized failure message contained a status code but no endpoint path.
+actions:
+  - id: action-1
+    action: Include the repository endpoint path in sanitized client errors.
+    reason: Agents can identify the failing operation without raw logs.
+    effort: low
+    risk: low
+decision:
+  status: accepted
+  reviewer: maintainer
+  reason: The error remains sanitized and becomes actionable.
+  action: action-1
+plan:
+  schema: feedback-plan.v1
+  owner: agent
+  tasks:
+    - id: task-1
+      task: Add endpoint context to the client error.
+      status: done
+      validation: A focused test asserts the sanitized endpoint path.
+      evidence: The focused client test passes.

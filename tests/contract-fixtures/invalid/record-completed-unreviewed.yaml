@@ -1,0 +1,22 @@
+schema: feedback-record.v1
+id: fb-20260710-120500-completed-unreviewed
+summary: Completion was recorded before safety review.
+observation: The record contains completion while safety remains unreviewed.
+paths:
+  - docs
+created: "2026-07-10T12:05:00Z"
+updated: "2026-07-10T12:05:00Z"
+safety: unreviewed
+evidence: The change was verified locally.
+actions:
+  - id: action-1
+    action: Document the setup behavior.
+    reason: The behavior becomes reproducible.
+    effort: low
+    risk: low
+decision:
+  status: accepted
+  reviewer: maintainer
+  reason: The improvement is complete.
+  action: action-1
+completed: "2026-07-10T12:05:00Z"

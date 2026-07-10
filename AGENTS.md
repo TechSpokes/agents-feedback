@@ -9,6 +9,8 @@ This repository maintains an agent-assisted `.agents/feedback` installer scaffol
 - Maintain this repository as the source for the scaffold, not as an installed feedback folder.
 - Keep the installed scaffold dependency-free.
 - Keep target-repository setup limited to extracting `.agents/feedback` and pointing an agent at `.agents/feedback/AGENTS.md`.
+- Require temporary staging before upgrading an existing `.agents/feedback` installation.
+- Preserve committed shared records and ignored secret-free local additions as separate scopes.
 - Do not add a changelog for implemented feedback records.
 - Do not store secrets, credentials, raw private logs, customer data, private issue text, screenshots, large logs, or private tokens in examples, fixtures, or docs.
 - Keep scaffold instructions short enough for agents to read completely.
@@ -22,6 +24,7 @@ This repository maintains an agent-assisted `.agents/feedback` installer scaffol
 - `docs/specification.md` defines the installer scaffold contract, lifecycle, records, plans, script behavior, and safety rules.
 - `docs/releases/README.md` defines release note file requirements and the draft release workflow.
 - `docs/releases/v1.0.0.md` defines the v1 release body used for the draft GitHub Release.
+- `docs/releases/v1.1.0.md` defines the v1.1.0 release body used for the draft GitHub Release.
 - `scaffold/.agents/feedback/README.md` explains installed folder behavior when the scaffold exists.
 
 ## Agent Guidelines
@@ -29,6 +32,8 @@ This repository maintains an agent-assisted `.agents/feedback` installer scaffol
 Prefer small changes that preserve portability. If a proposed feature requires installed dependencies, background services, databases, or a target-repository package install, reject it for v1 or document it as a future extension.
 
 Keep repository documentation aligned with scaffold behavior. When changing lifecycle states, record fields, plan fields, script output, installer behavior, or release artifact layout, update `docs/specification.md` in the same change.
+
+Keep one record schema and one plan schema until a released installed base requires compatibility handling. Do not add schema dispatchers or automatic migration without evidence.
 
 ## Context
 

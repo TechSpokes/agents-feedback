@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -77,6 +77,9 @@ jobs:
             echo "checksum=${checksum}"
             echo "title=${title}"
           } >> "${GITHUB_OUTPUT}"
+
+      - name: Install repository dependencies
+        run: npm ci
 
       - name: Run release checks
         run: npm run release:check

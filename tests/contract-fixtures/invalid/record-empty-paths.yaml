@@ -1,0 +1,8 @@
+schema: feedback-record.v1
+id: fb-20260710-120000-empty-paths
+summary: The record has no repository scope.
+observation: The paths list was left empty.
+paths: []
+created: "2026-07-10T12:00:00Z"
+updated: "2026-07-10T12:00:00Z"
+safety: public

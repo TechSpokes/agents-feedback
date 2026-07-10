@@ -1,0 +1,14 @@
+schema: feedback-record.v1
+id: fb-20260710-120300-accepted-without-actions
+summary: The accepted decision has no candidate action.
+observation: Triage selected an action that is not represented in the record.
+paths:
+  - docs
+created: "2026-07-10T12:03:00Z"
+updated: "2026-07-10T12:03:00Z"
+safety: public
+decision:
+  status: accepted
+  reviewer: maintainer
+  reason: A documentation fix was selected.
+  action: action-1

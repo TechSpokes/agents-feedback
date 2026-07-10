@@ -1,0 +1,13 @@
+schema: feedback-record.v1
+id: fb-20260701-090000-new-item
+summary: The API setup command assumes an undocumented working directory.
+observation: The command fails at repository root and succeeds from the tools directory.
+paths:
+  - packages/api
+created: "2026-07-01T09:00:00Z"
+updated: "2026-07-01T09:00:00Z"
+safety: public
+area: setup
+kind: setup
+severity: medium
+evidence: The root invocation reported a missing repository-relative file.

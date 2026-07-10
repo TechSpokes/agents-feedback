@@ -1,7 +1,15 @@
 #!/usr/bin/env node
+/**
+ * Builds a reproducible dependency-free scaffold ZIP and SHA-256 checksum.
+ * @since 1.0.0
+ * @sideEffects Replaces the staged artifact and writes release files under dist/.
+ * @constraints ZIP metadata and entry ordering must remain stable across builds.
+ */
 import crypto from 'node:crypto';
+import { Buffer } from 'node:buffer';
 import fs from 'node:fs';
 import path from 'node:path';
+import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -15,6 +23,7 @@ const sourceFeedbackRoot = path.join(repoRoot, 'scaffold', '.agents', 'feedback'
 const zipPath = path.join(distDir, artifactName);
 const checksumPath = `${zipPath}.sha256`;
 const checkOnly = process.argv.includes('--check');
+const zipTimestamp = new Date(Date.UTC(1980, 0, 1, 0, 0, 0));
 
 function ensureDirectory(directory) {
   fs.mkdirSync(directory, { recursive: true });
@@ -43,7 +52,17 @@ function walkFiles(directory) {
       files.push(entryPath);
     }
   }
-  return files.sort((left, right) => left.localeCompare(right));
+  return files.sort(compareOrdinal);
+}
+
+function compareOrdinal(left, right) {
+  if (left < right) {
+    return -1;
+  }
+  if (left > right) {
+    return 1;
+  }
+  return 0;
 }
 
 const crcTable = new Uint32Array(256);
@@ -64,9 +83,9 @@ function crc32(buffer) {
 }
 
 function dosDateTime(date) {
-  const year = Math.max(date.getFullYear(), 1980);
-  const dosTime = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2);
-  const dosDate = ((year - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate();
+  const year = Math.max(date.getUTCFullYear(), 1980);
+  const dosTime = (date.getUTCHours() << 11) | (date.getUTCMinutes() << 5) | Math.floor(date.getUTCSeconds() / 2);
+  const dosDate = ((year - 1980) << 9) | ((date.getUTCMonth() + 1) << 5) | date.getUTCDate();
   return { dosTime, dosDate };
 }
 
@@ -83,15 +102,17 @@ function uint32(value) {
 }
 
 function createZip(sourceDirectory, targetZipPath) {
+  /** @type {Uint8Array[]} */
   const fileParts = [];
+  /** @type {Uint8Array[]} */
   const centralParts = [];
   let offset = 0;
-  const timestamp = dosDateTime(new Date());
+  const timestamp = dosDateTime(zipTimestamp);
 
   for (const filePath of walkFiles(sourceDirectory)) {
     const relativeName = path.relative(sourceDirectory, filePath).split(path.sep).join('/');
     const nameBuffer = Buffer.from(relativeName, 'utf8');
-    const content = fs.readFileSync(filePath);
+    const content = Buffer.from(fs.readFileSync(filePath, 'base64'), 'base64');
     const checksum = crc32(content);
     const localHeader = Buffer.concat([
       uint32(0x04034b50),
@@ -150,14 +171,17 @@ function createZip(sourceDirectory, targetZipPath) {
 }
 
 function sha256(filePath) {
-  return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+  return crypto.createHash('sha256').update(fs.readFileSync(filePath, 'base64'), 'base64').digest('hex');
 }
 
 function verifyRequiredFiles() {
   const required = [
     '.agents/feedback/AGENTS.md',
     '.agents/feedback/INSTALL.md',
+    '.agents/feedback/UPGRADE.md',
     '.agents/feedback/AGENTS.final.md',
+    '.agents/feedback/local/.gitignore',
+    '.agents/feedback/local/README.md',
     '.agents/feedback/schemas/record.schema.json',
     '.agents/feedback/schemas/plan.schema.json',
     '.agents/feedback/tools/feedback-state.mjs',
@@ -172,6 +196,26 @@ function verifyRequiredFiles() {
 
   if (fs.existsSync(path.join(artifactRoot, 'package.json'))) {
     throw new Error('artifact must not include repository package.json');
+  }
+
+  const artifactFiles = walkFiles(artifactRoot)
+    .map((filePath) => path.relative(artifactRoot, filePath).split(path.sep).join('/'));
+  if (artifactFiles.some((filePath) => filePath.includes('node_modules/'))) {
+    throw new Error('artifact must not include node_modules');
+  }
+  if (artifactFiles.some((filePath) => /^\.agents\/feedback\/records\/.*\.ya?ml$/i.test(filePath))) {
+    throw new Error('artifact must not include shared feedback records');
+  }
+
+  const allowedLocalFiles = new Set([
+    '.agents/feedback/local/.gitignore',
+    '.agents/feedback/local/README.md',
+  ]);
+  const unexpectedLocal = artifactFiles.find(
+    (filePath) => filePath.startsWith('.agents/feedback/local/') && !allowedLocalFiles.has(filePath),
+  );
+  if (unexpectedLocal) {
+    throw new Error(`artifact must not include personal local content: ${unexpectedLocal}`);
   }
 }
 

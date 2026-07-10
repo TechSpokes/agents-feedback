@@ -1,0 +1,8 @@
+schema: feedback-plan.v1
+owner: agent
+tasks:
+  - id: task-1
+    task: Update the documentation.
+    status: planned
+    validation: Run the documented command.
+    tasks: []

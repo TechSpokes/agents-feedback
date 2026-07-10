@@ -1,23 +1,10 @@
-schema_version: feedback-plan.v1
-objective: ""
+# Replace the example task with the accepted work and its proof of completion.
+# yaml-language-server: $schema=../schemas/plan.schema.json
+schema: feedback-plan.v1
 owner: agent
-status: planned
-source_action_id: null
-phases:
-  - id: phase-1
-    title: ""
+tasks:
+  - id: task-1
+    task: "Describe one concrete task."
     status: planned
-    tasks:
-      - id: task-1
-        title: ""
-        # Concrete instructions for performing this task.
-        instructions: ""
-        status: planned
-        # How to prove this task was completed correctly.
-        validation: ""
-        # Evidence collected while executing or validating the task.
-        evidence: ""
-        tasks: []
-outcome:
-  status: pending
-  notes: ""
+    validation: "Describe how to prove the task is complete."
+# outcome: ""

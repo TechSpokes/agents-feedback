@@ -1,0 +1,24 @@
+schema: feedback-record.v1
+id: fb-20260702-090000-planned-item
+summary: API tests do not document their required fixture setup.
+observation: A clean test run fails until the fixture setup command is run manually.
+paths:
+  - packages/api/tests
+created: "2026-07-02T09:00:00Z"
+updated: "2026-07-02T09:30:00Z"
+safety: public
+area: tests
+kind: verification
+severity: medium
+evidence: The clean run failed before setup and passed after the documented fixture command.
+actions:
+  - id: action-1
+    action: Document the fixture setup next to the test command.
+    reason: Future runs can reproduce the required precondition.
+    effort: low
+    risk: low
+decision:
+  status: accepted
+  reviewer: maintainer
+  reason: The issue is reproducible and the documentation fix is local.
+  action: action-1

@@ -1,0 +1,16 @@
+schema: feedback-record.v1
+id: fb-20260705-090000-archived-item
+summary: A retained environment observation is kept for historical context.
+observation: One development image used a different optional shell.
+paths:
+  - scripts
+created: "2026-07-05T09:00:00Z"
+updated: "2026-07-05T09:30:00Z"
+safety: public
+area: environment
+kind: environment
+severity: low
+decision:
+  status: retained
+  reviewer: maintainer
+  reason: The observation is safe history but does not require action.

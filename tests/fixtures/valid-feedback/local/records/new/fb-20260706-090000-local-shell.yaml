@@ -1,0 +1,16 @@
+schema: feedback-record.v1
+id: fb-20260706-090000-local-shell
+summary: The local Windows shell needs a different command invocation.
+observation: The local PowerShell policy blocks the script shim while the executable wrapper works.
+paths:
+  - scripts/windows
+created: "2026-07-06T09:00:00Z"
+updated: "2026-07-06T09:00:00Z"
+safety: public
+area: environment
+kind: environment
+severity: low
+evidence: The secret-free wrapper invocation succeeds on this clone.
+environment:
+  os: windows
+  shell: powershell

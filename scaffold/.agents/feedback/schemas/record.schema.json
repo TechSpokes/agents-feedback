@@ -2,216 +2,335 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://techspokes.local/agents-feedback/record.schema.json",
   "title": "Agents Feedback Record",
-  "description": "A repository-local feedback record that captures a sanitized agent observation and its lifecycle state.",
+  "description": "A repository-local record of sanitized workflow feedback for future agents and maintainers.",
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema_version",
+    "schema",
     "id",
-    "title",
-    "status",
-    "created_at",
-    "updated_at",
-    "completed_at",
-    "area",
-    "kind",
-    "severity",
     "summary",
-    "description",
-    "evidence",
-    "impact",
-    "suggested_actions",
-    "decision",
-    "related_files",
-    "plan",
-    "sensitivity"
+    "observation",
+    "paths",
+    "created",
+    "updated",
+    "safety"
   ],
   "properties": {
-    "schema_version": {
-      "description": "Record schema identifier. Use feedback-record.v1 for v1 records.",
+    "schema": {
+      "description": "Record schema identifier.",
       "type": "string",
       "const": "feedback-record.v1"
     },
     "id": {
-      "description": "Stable record identifier and filename prefix using UTC date, time, and a short slug.",
+      "description": "Stable record identifier and filename prefix using a UTC date, time including seconds, and short slug.",
       "type": "string",
-      "pattern": "^fb-[0-9]{8}-[0-9]{4}-[a-z0-9][a-z0-9-]*$"
-    },
-    "title": {
-      "description": "Short human-readable record title for list displays.",
-      "type": "string",
-      "minLength": 1
-    },
-    "status": {
-      "description": "Lifecycle state. This value must match the folder containing the record.",
-      "type": "string",
-      "enum": ["new", "planned", "in_progress", "in_review", "completed", "archived"]
-    },
-    "created_at": {
-      "description": "UTC timestamp for when the record was created.",
-      "type": "string",
-      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
-    },
-    "updated_at": {
-      "description": "UTC timestamp for the most recent meaningful record update.",
-      "type": "string",
-      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
-    },
-    "completed_at": {
-      "description": "UTC completion timestamp. Set only when status is completed; otherwise use null.",
-      "anyOf": [
-        {
-          "type": "null"
-        },
-        {
-          "type": "string",
-          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
-        }
-      ]
-    },
-    "area": {
-      "description": "Repository area affected by the observation, such as docs, tests, setup, tooling, or workflow.",
-      "type": "string",
-      "minLength": 1
-    },
-    "kind": {
-      "description": "Category of feedback so future agents can scan related records.",
-      "type": "string",
-      "enum": ["friction", "missing_instruction", "tooling", "setup", "verification", "documentation", "machine_specific", "other"]
-    },
-    "severity": {
-      "description": "Expected impact on future agent work if the observation is not addressed.",
-      "type": "string",
-      "enum": ["low", "medium", "high"]
+      "pattern": "^fb-[0-9]{8}-[0-9]{6}-[a-z0-9][a-z0-9-]*$"
     },
     "summary": {
-      "description": "One-sentence scan line describing the observation.",
+      "description": "One-sentence scan line describing the repository feedback.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 180
+    },
+    "observation": {
+      "description": "What happened, stated without assuming the cause.",
       "type": "string",
       "minLength": 1
     },
-    "description": {
-      "description": "Full context future agents need to understand the observation without private logs or secrets.",
+    "paths": {
+      "description": "Repository-relative files or directories affected by the observation. Use a single dot for repository-wide feedback and forward slashes on every platform.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^(?:\\.|(?!/)(?![A-Za-z]:/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\x5c).+)$"
+      }
+    },
+    "created": {
+      "description": "UTC timestamp for initial capture.",
       "type": "string",
-      "minLength": 1
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "updated": {
+      "description": "UTC timestamp for the latest meaningful change or repeated observation.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "safety": {
+      "description": "Content review state. Shared public repositories commit only public records; internal requires repository policy support.",
+      "type": "string",
+      "enum": ["unreviewed", "public", "internal"]
+    },
+    "redactions": {
+      "description": "Short descriptions of content removed or generalized during safety review.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "area": {
+      "description": "Stable lowercase repository area used for filtering, such as setup, tests, docs, tooling, or packages/api.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "^[a-z0-9][a-z0-9._/-]*$"
+    },
+    "kind": {
+      "description": "Feedback category. Use unknown during initial capture when classification is not clear.",
+      "type": "string",
+      "enum": [
+        "unknown",
+        "instruction",
+        "setup",
+        "tooling",
+        "workflow",
+        "verification",
+        "documentation",
+        "environment",
+        "other"
+      ]
+    },
+    "severity": {
+      "description": "Expected impact on future work. Use unknown during initial capture when impact is not assessed.",
+      "type": "string",
+      "enum": ["unknown", "low", "medium", "high"]
     },
     "evidence": {
-      "description": "Sanitized evidence summary. Summarize relevant symptoms instead of pasting raw logs or private content.",
+      "description": "Sanitized support for the observation. Summarize output instead of pasting raw logs or private content.",
       "type": "string",
       "minLength": 1
     },
     "impact": {
-      "description": "Explanation of how the observation affects future agent efficiency, safety, verification, or setup.",
+      "description": "How the observation affects efficiency, correctness, safety, setup, or verification.",
       "type": "string",
       "minLength": 1
     },
-    "suggested_actions": {
-      "description": "One or more possible actions that could address the observation before a decision is selected.",
+    "environment": {
+      "description": "Generalized machine context that is relevant to reproducing the observation without identifying a person or device.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "os": {
+          "description": "Operating system family or version without a hostname or user path.",
+          "type": "string",
+          "minLength": 1
+        },
+        "shell": {
+          "description": "Shell family or version relevant to the observation.",
+          "type": "string",
+          "minLength": 1
+        },
+        "architecture": {
+          "description": "Machine architecture relevant to the observation.",
+          "type": "string",
+          "minLength": 1
+        },
+        "tools": {
+          "description": "Relevant tool names mapped to generalized version values.",
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "occurrences": {
+      "description": "Number of materially separate confirmations. Omit for the first occurrence.",
+      "type": "integer",
+      "minimum": 2
+    },
+    "hypothesis": {
+      "description": "Possible cause, clearly separated from the observed facts.",
+      "type": "string",
+      "minLength": 1
+    },
+    "confidence": {
+      "description": "Confidence in the hypothesis, not in the observed event.",
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    },
+    "reproduction": {
+      "description": "Minimal steps another agent or maintainer can use to reproduce the observation.",
+      "type": "string",
+      "minLength": 1
+    },
+    "actions": {
+      "description": "Candidate improvements considered before triage selects one.",
       "type": "array",
       "minItems": 1,
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "title", "rationale", "effort", "risk"],
+        "required": ["id", "action", "reason", "effort", "risk"],
         "properties": {
           "id": {
-            "description": "Stable suggested action identifier within this record, such as action-1.",
+            "description": "Stable action identifier within this record.",
             "type": "string",
             "pattern": "^action-[0-9]+$"
           },
-          "title": {
-            "description": "Short action title.",
+          "action": {
+            "description": "Concrete improvement that could address the observation.",
             "type": "string",
             "minLength": 1
           },
-          "rationale": {
-            "description": "Why this action may address the feedback.",
+          "reason": {
+            "description": "Why this action could address the observation.",
             "type": "string",
             "minLength": 1
           },
           "effort": {
-            "description": "Estimated implementation effort for this action.",
+            "description": "Estimated implementation effort.",
             "type": "string",
-            "enum": ["low", "medium", "high"]
+            "enum": ["unknown", "low", "medium", "high"]
           },
           "risk": {
-            "description": "Estimated risk or blast radius for this action.",
+            "description": "Estimated change risk or blast radius.",
             "type": "string",
-            "enum": ["low", "medium", "high"]
+            "enum": ["unknown", "low", "medium", "high"]
           }
         }
       }
     },
     "decision": {
-      "description": "Current outcome decision for the record.",
-      "type": "string",
-      "enum": ["undecided", "accepted", "declined", "transferred", "completed", "duplicate", "obsolete", "retained"]
-    },
-    "related_files": {
-      "description": "Repository-relative files that contain durable changes, evidence, or canonical follow-up context.",
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "plan": {
-      "description": "Selected action plan and progress tracker, or null before planning is useful.",
-      "anyOf": [
-        {
-          "type": "null"
+      "description": "Explicit triage decision. Omit while the record remains untriaged in the new folder.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reviewer", "reason"],
+      "properties": {
+        "status": {
+          "description": "Triage outcome.",
+          "type": "string",
+          "enum": ["accepted", "declined", "duplicate", "obsolete", "transferred", "retained"]
         },
+        "reviewer": {
+          "description": "Person, role, or explicitly delegated agent responsible for the decision.",
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "description": "Concise reason for the decision.",
+          "type": "string",
+          "minLength": 1
+        },
+        "action": {
+          "description": "Selected action identifier when the decision is accepted.",
+          "type": "string",
+          "pattern": "^action-[0-9]+$"
+        }
+      },
+      "allOf": [
         {
-          "$ref": "plan.schema.json"
+          "if": {
+            "type": "object",
+            "properties": {
+              "status": {"const": "accepted"}
+            },
+            "required": ["status"]
+          },
+          "then": {"type": "object", "required": ["action"]},
+          "else": {"not": {"type": "object", "required": ["action"]}}
         }
       ]
     },
-    "sensitivity": {
-      "description": "Sanitization metadata for this record.",
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["sanitized", "classification", "redaction_notes"],
-      "properties": {
-        "sanitized": {
-          "description": "True only after reviewing the record for restricted content.",
-          "type": "boolean",
-          "const": true
-        },
-        "classification": {
-          "description": "Remaining sensitivity after sanitization.",
-          "type": "string",
-          "enum": ["public", "internal", "sensitive_redacted"]
-        },
-        "redaction_notes": {
-          "description": "Short note describing any redaction performed; leave empty when no redaction was needed.",
-          "type": "string"
-        }
+    "links": {
+      "description": "Related record, issue, pull request, discussion, or external planning references.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
       }
+    },
+    "plan": {
+      "description": "Small execution plan for the accepted action.",
+      "$ref": "plan.schema.json"
+    },
+    "completed": {
+      "description": "UTC completion timestamp. Include only while the record is in the completed folder.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
     }
+  },
+  "dependencies": {
+    "hypothesis": ["confidence"],
+    "confidence": ["hypothesis"]
   },
   "allOf": [
     {
       "if": {
+        "type": "object",
         "properties": {
-          "status": {
-            "const": "completed"
+          "decision": {
+            "type": "object",
+            "properties": {
+              "status": {"const": "accepted"}
+            },
+            "required": ["status"]
           }
         },
-        "required": ["status"]
+        "required": ["decision"]
       },
+      "then": {"type": "object", "required": ["actions"]}
+    },
+    {
+      "if": {"type": "object", "required": ["plan"]},
       "then": {
+        "type": "object",
+        "required": ["decision"],
         "properties": {
-          "completed_at": {
-            "type": "string",
-            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
-          }
-        }
-      },
-      "else": {
-        "properties": {
-          "completed_at": {
-            "type": "null"
+          "decision": {
+            "type": "object",
+            "properties": {
+              "status": {"const": "accepted"}
+            },
+            "required": ["status"]
           }
         }
       }
+    },
+    {
+      "if": {"type": "object", "required": ["completed"]},
+      "then": {
+        "type": "object",
+        "required": ["decision"],
+        "properties": {
+          "decision": {
+            "type": "object",
+            "properties": {
+              "status": {"const": "accepted"}
+            },
+            "required": ["status"]
+          },
+          "safety": {
+            "type": "string",
+            "enum": ["public", "internal"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "type": "object",
+            "properties": {
+              "status": {"enum": ["duplicate", "transferred"]}
+            },
+            "required": ["status"]
+          }
+        },
+        "required": ["decision"]
+      },
+      "then": {"type": "object", "required": ["links"]}
     }
   ]
 }

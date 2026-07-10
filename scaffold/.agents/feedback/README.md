@@ -1,25 +1,35 @@
 # feedback
 
-This folder stores repository-local agent feedback records that identify workflow friction, missing instructions, setup problems, verification gaps, and completed improvements for future agent sessions.
+This folder provides a repository-local learning loop for coding agents and maintainers. It stores sanitized observations that can reduce repeated setup, tooling, workflow, documentation, and verification friction.
 
 ## Installation
 
-When this folder is first extracted from a release artifact, `AGENTS.md` is an installer entrypoint. Point an agent at `.agents/feedback/AGENTS.md` so it can read `INSTALL.md`, wire the root instruction hook, verify the scaffold, and convert `AGENTS.md` to operational mode.
+For a fresh repository, extract the release artifact at the repository root and point an agent to `.agents/feedback/AGENTS.md`.
 
-After installation, `AGENTS.md` contains operational instructions copied from `AGENTS.final.md`.
+The release artifact is the `.zip` file. The similarly named `.zip.sha256` file is optional verification metadata and is not extracted.
+
+For an existing installation, never extract directly over `.agents/feedback`. Extract into a temporary staging directory and point an agent to the staged `UPGRADE.md`.
+
+## Shared and Local Content
+
+Shared records live under `records/` and are normally committed. Ignored per-clone additions live under `local/` and remain secret-free.
+
+Agents inspect relevant active feedback before substantial or unfamiliar work. Durable lessons move into normal repository instructions, docs, scripts, tests, or code before feedback is completed.
 
 ## Contents
 
 - `AGENTS.md` contains installer instructions before setup and operational instructions after setup.
-- `AGENTS.final.md` contains operational instructions copied over `AGENTS.md` after installation succeeds.
-- `INSTALL.md` contains the agent-assisted installation procedure.
-- `records/` contains lifecycle folders for YAML feedback records.
-- `schemas/` contains JSON schemas for IDE and agent contract validation.
+- `AGENTS.final.md` contains operational instructions.
+- `INSTALL.md` defines fresh installation.
+- `UPGRADE.md` defines staged upgrades.
+- `records/` contains shared lifecycle folders.
+- `local/` contains the ignored per-clone boundary.
+- `schemas/` contains the sole record and plan contracts.
 - `templates/` contains YAML templates and the managed root hook.
-- `tools/` contains portable helper scripts when installed.
+- `tools/` contains the dependency-free state helper.
 
 ## Boundaries
 
-Do not store secrets, credentials, raw private logs, screenshots, generated artifacts, customer data, private tokens, private issue text, large logs, or general task notes here.
+This folder is not long-term memory, a general task tracker, canonical project documentation, or a project changelog.
 
-Promote durable rules to the repository's canonical `AGENTS.md`, `README.md`, docs, scripts, or tests.
+Never store secrets, credentials, raw private logs, screenshots, generated artifacts, customer data, private tokens, private issue text, or large logs.

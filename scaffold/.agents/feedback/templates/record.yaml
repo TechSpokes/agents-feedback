@@ -1,32 +1,51 @@
+# Replace every example value before saving the record.
 # yaml-language-server: $schema=../schemas/record.schema.json
-schema_version: feedback-record.v1
-id: fb-YYYYMMDD-HHMM-short-slug
-title: ""
-status: new
-created_at: "YYYY-MM-DDTHH:MM:SSZ"
-updated_at: "YYYY-MM-DDTHH:MM:SSZ"
-completed_at: null
-area: ""
-kind: friction
-severity: low
-# One sentence for quick scanning.
-summary: ""
-# Full context future agents need to understand the observation.
-description: ""
-# Sanitized evidence summary. Do not paste raw logs or private content.
-evidence: ""
-impact: ""
-# Add one or more possible fixes before selecting a plan.
-suggested_actions:
-  - id: action-1
-    title: ""
-    rationale: ""
-    effort: low
-    risk: low
-decision: undecided
-related_files: []
-plan: null
-sensitivity:
-  sanitized: true
-  classification: public
-  redaction_notes: ""
+schema: feedback-record.v1
+id: fb-20000101-000000-short-slug
+summary: "Describe the feedback in one sentence."
+observation: "Describe what happened without assuming the cause."
+paths:
+  - .
+created: "2000-01-01T00:00:00Z"
+updated: "2000-01-01T00:00:00Z"
+safety: unreviewed
+
+# Add optional fields only when they carry useful information.
+# area: setup
+# kind: unknown
+# severity: unknown
+# evidence: ""
+# impact: ""
+# environment:
+#   os: windows
+#   shell: powershell
+#   architecture: x64
+#   tools:
+#     node: "24"
+# occurrences: 2
+# hypothesis: ""
+# confidence: low
+# reproduction: ""
+# redactions: []
+# actions:
+#   - id: action-1
+#     action: ""
+#     reason: ""
+#     effort: unknown
+#     risk: unknown
+# decision:
+#   status: accepted
+#   reviewer: maintainer
+#   reason: ""
+#   action: action-1
+# links:
+#   - issue-or-record-reference
+# plan:
+#   schema: feedback-plan.v1
+#   owner: agent
+#   tasks:
+#     - id: task-1
+#       task: ""
+#       status: planned
+#       validation: ""
+# completed: "YYYY-MM-DDTHH:MM:SSZ"

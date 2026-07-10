@@ -1,0 +1,12 @@
+schema: feedback-record.v1
+id: fb-20260709-100000-missing-decision
+summary: An in-review record has no accepted decision.
+observation: The file moved to review before triage was recorded.
+paths:
+  - scripts
+created: "2026-07-09T10:00:00Z"
+updated: "2026-07-09T10:00:00Z"
+safety: public
+area: tooling
+kind: tooling
+severity: medium

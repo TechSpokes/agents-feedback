@@ -1,26 +1,43 @@
 # records
 
-This folder contains YAML feedback records grouped by lifecycle status.
+This folder contains shared YAML feedback records grouped by lifecycle.
 
 ## Lifecycle Folders
 
 - `new/` contains untriaged observations.
-- `planned/` contains selected improvements with a proposed action.
-- `in_progress/` contains improvements currently being implemented.
-- `in_review/` contains improvements waiting for validation or owner review.
+- `planned/` contains accepted improvements whose work has not started.
+- `in_progress/` contains accepted improvements being implemented.
+- `in_review/` contains accepted improvements awaiting validation or owner review.
 - `completed/` contains resolved feedback with completion evidence.
-- `archived/` contains duplicates, declined records, obsolete records, transferred records, and retained history.
+- `archived/` contains declined, duplicate, obsolete, transferred, or intentionally retained records.
 
 ## Lifecycle Flow
 
-Records usually move through `new`, `planned`, `in_progress`, `in_review`, and `completed`.
+```text
+new -> planned -> in_progress -> in_review -> completed
+any state -> archived
+```
 
-The `archived` state can be reached from any lifecycle state.
+The containing folder is the lifecycle state. Records do not contain a `status` key.
+
+## Before Creating
+
+Inspect active shared and local records for the same observation. Update a match instead of creating a duplicate.
+
+For a repeated observation, update `updated`, refine sanitized `evidence`, add affected `paths`, and set or increment `occurrences`.
 
 ## Record Shape
 
-Each record filename must start with its `id`, such as `fb-20260709-0830-shell-startup-friction.yaml`.
+Use `../templates/record.yaml`. Initial capture requires identity, a scan line, a factual observation, repository scope, timestamps, and safety state. Add classification, analysis, actions, decisions, plans, links, and completion only when useful.
 
-Use `summary` for one-sentence scanning and `description` for full context. Use `suggested_actions` for possible fixes, then use `plan` to track the selected action and progress.
+Use forward-slash repository-relative `paths`. Use `.` only for genuinely repository-wide feedback.
 
-The `status` field in each record must match the folder that contains it. The `completed_at` field must be set only for records in `completed/`.
+## Triage
+
+A new record has no `decision`. Accepted records move through `planned`, `in_progress`, `in_review`, and `completed`. Archive decisions use `declined`, `duplicate`, `obsolete`, `transferred`, or `retained`.
+
+Only a maintainer or explicitly delegated agent may triage unrelated shared feedback.
+
+## Completion
+
+Before completion, move durable knowledge into normal repository instructions, docs, scripts, tests, or code. The feedback record points to those durable locations and preserves sanitized evidence.

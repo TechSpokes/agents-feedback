@@ -22,7 +22,9 @@ Each release note file must use this structure:
 ## Notes
 ```
 
-The first line must match the tag exactly. For tag `v1.0.0`, the file must be `docs/releases/v1.0.0.md` and the title must be `# agents-feedback v1.0.0`.
+The first line must match the tag exactly. For tag `vX.Y.Z`, the file is `docs/releases/vX.Y.Z.md` and the title is `# agents-feedback vX.Y.Z`.
+
+The repository currently retains release bodies for `v1.0.0` and `v1.1.0`.
 
 ## Draft Release Workflow
 
@@ -37,3 +39,5 @@ git push origin vX.Y.Z
 ```
 
 Pushing the tag creates or updates a draft GitHub Release with `agents-feedback-vX.Y.Z.zip` and `agents-feedback-vX.Y.Z.zip.sha256` attached. The maintainer reviews the draft release, verifies the attached artifact, and publishes the draft manually.
+
+User-facing release notes must identify `agents-feedback-vX.Y.Z.zip` as the installation download. They must describe `.zip.sha256` as optional verification metadata that users do not extract.

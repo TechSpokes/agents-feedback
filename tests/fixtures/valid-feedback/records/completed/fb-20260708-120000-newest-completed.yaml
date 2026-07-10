@@ -1,0 +1,35 @@
+schema: feedback-record.v1
+id: fb-20260708-120000-newest-completed
+summary: The root hook now points agents to relevant feedback before work.
+observation: The prior hook mentioned record creation but not feedback consumption.
+paths:
+  - .
+created: "2026-07-08T10:00:00Z"
+updated: "2026-07-08T12:00:00Z"
+safety: public
+area: workflow
+kind: instruction
+severity: high
+evidence: The installed hook and its focused test now include the orientation rule.
+actions:
+  - id: action-1
+    action: Add feedback orientation to the bounded root hook.
+    reason: Future agents can benefit before repeating known friction.
+    effort: low
+    risk: low
+decision:
+  status: accepted
+  reviewer: maintainer
+  reason: The small hook change closes the consumption loop.
+  action: action-1
+plan:
+  schema: feedback-plan.v1
+  owner: agent
+  tasks:
+    - id: task-1
+      task: Update and test the managed hook.
+      status: done
+      validation: Installer tests assert the bounded hook.
+      evidence: Installer tests pass.
+  outcome: Relevant feedback orientation is installed.
+completed: "2026-07-08T12:00:00Z"

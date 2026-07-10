@@ -1,20 +1,22 @@
-# Agent Instructions for feedback - Installer Mode
+# Agent Instructions for feedback Installation
 
 ## Summary
 
-This folder is an agent-assisted installer for repository feedback. Read `INSTALL.md`, wire the target repository root instruction file, verify the scaffold, then replace this file with `AGENTS.final.md`.
+This folder is the agent-assisted installer for repository feedback. Read `INSTALL.md`, wire the repository root instruction file, verify the scaffold, and replace this file with `AGENTS.final.md` only after a fresh installation succeeds.
 
-## Must-follow rules
+## Must-follow Rules
 
 - Do not create feedback records before installation is complete.
-- Preserve existing target repository instructions when editing the root instruction file.
-- Add or update only the managed feedback hook from `templates/root-agents-hook.md`.
-- Run the installation verification steps in `INSTALL.md`.
-- Replace this file with `AGENTS.final.md` only after verification succeeds.
-- Never put secrets, credentials, raw private logs, customer data, private tokens, private issue text, screenshots, or large logs in feedback records.
+- Preserve unrelated repository instructions.
+- Add or update only the managed hook from `templates/root-agents-hook.md`.
+- Use the Node.js verification path when Node.js 22 or newer is available.
+- Use the documented manual fallback when Node.js is unavailable or older.
+- Stop and read `UPGRADE.md` if feedback records or an existing managed hook indicate an existing installation.
+- Never store secrets, credentials, raw private logs, customer data, private tokens, private issue text, screenshots, or large logs.
 
 ## Required Reading
 
-- `INSTALL.md` defines the installation procedure.
+- `INSTALL.md` defines fresh installation.
+- `UPGRADE.md` defines staged, record-preserving upgrades.
 - `templates/root-agents-hook.md` contains the managed root hook.
-- `AGENTS.final.md` contains the operational instructions that replace this installer file.
+- `AGENTS.final.md` contains the operational instructions installed after verification.

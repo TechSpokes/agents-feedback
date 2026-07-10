@@ -1,24 +1,21 @@
 # Contributing
 
-This repository accepts improvements to the `.agents/feedback` installer scaffold, schemas, templates, state script, release artifact tooling, tests, and documentation.
+This repository accepts improvements to the `.agents/feedback` installer scaffold, schemas, templates, state helper, local overlay, artifact tooling, tests, and documentation.
 
 ## Scope
 
-Changes must preserve the v1 portability contract. The installed scaffold must work after a release artifact is extracted into a target repository and an agent is pointed at `.agents/feedback/AGENTS.md`.
+Changes must preserve the portable learning-loop contract. A fresh release artifact installs by extraction and agent guidance. Existing installations upgrade from a temporary staging directory.
 
-Keep scope narrow. Promote durable project rules into canonical repository files instead of expanding feedback records into long-term memory, a task tracker, or a documentation replacement.
+Keep the installed scaffold dependency-free. Repository-only development dependencies are allowed when artifact tests prove that they do not ship.
+
+Keep feedback focused on repository workflow improvement. Promote durable rules into canonical repository files instead of expanding feedback into long-term memory, a task tracker, or a documentation replacement.
 
 ## Development
 
-Use small changes that keep the scaffold easy to inspect and release as an artifact. Do not add dependencies to the installed scaffold.
-
-Repository-only validation tooling may exist outside `scaffold/.agents/feedback`. For v1, prefer Node.js built-ins unless a dependency meaningfully improves contract validation without entering the release artifact.
-
-## Verification
-
-Run these checks when relevant tooling exists:
+Use Node.js 24 for repository checks.
 
 ```bash
+npm install
 npm test
 npm run check:contract
 npm run release:notes
@@ -27,26 +24,34 @@ npm run artifact:check
 npm run release:check
 ```
 
-Run focused checks when changing only documentation. At minimum, inspect Markdown for one H1, ASCII-only content, fenced code block language identifiers, and no nested lists in active docs.
+Run focused checks while implementing, then run the complete release gate before requesting release approval.
+
+## Contract Changes
+
+Update `docs/specification.md` in the same change when lifecycle, record fields, plan fields, local scope, state output, installer behavior, upgrade behavior, or artifact layout changes.
+
+Keep one supported record schema and one supported plan schema until a released installed base makes compatibility necessary. Do not introduce dispatchers or migrations without evidence that stored records require them.
+
+## Markdown
+
+Active Markdown uses one H1, ASCII punctuation, labeled code fences, heading-based structure, and flat atomic lists. Do not use nested lists or bold text as headings.
 
 ## Pull Request Checklist
 
 - The installed scaffold remains dependency-free.
-- The installed scaffold requires no target-repository package install.
-- The installed scaffold requires no database.
-- The installed scaffold requires no background service.
-- Agent-assisted installation remains the only supported v1 installation model.
-- `npm test` passes when tests are present.
-- `npm run check:contract` passes when contract validation is present.
-- `npm run release:notes` passes when release note validation is present.
-- `npm run check:state` passes when the state script is present.
-- `npm run artifact:check` passes when artifact tooling is present.
-- Documentation describes any user-visible behavior changes.
+- The installed scaffold requires no target package installation.
+- The installed scaffold requires no database or background service.
+- Fresh installation and staged upgrade instructions remain distinct.
+- Shared records and ignored local content remain separate.
+- Local instructions cannot weaken shared safety or authority.
+- Schemas, templates, fixtures, state output, and docs remain aligned.
+- The artifact contains no repository dependencies, tests, shared records, or personal local content.
 - Examples contain no secrets, credentials, private logs, customer data, private issue text, screenshots, large logs, or private tokens.
+- `npm run release:check` passes.
 
 ## Release Actions
 
-Do not publish a release without explicit maintainer approval. Pushing an approved `v*` tag creates a draft GitHub Release with attached artifacts; the maintainer reviews and publishes that draft.
+Do not publish a release without explicit maintainer approval. Pushing an approved `v*` tag creates or updates a draft GitHub Release with attached artifacts; the maintainer reviews and publishes that draft.
 
 ## Public Repository Channels
 

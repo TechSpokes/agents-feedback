@@ -1,0 +1,32 @@
+schema: feedback-record.v1
+id: fb-20260703-090000-progress-item
+summary: Setup documentation omits the supported Node.js version.
+observation: The setup guide names Node.js but does not state its supported version.
+paths:
+  - docs/setup.md
+created: "2026-07-03T09:00:00Z"
+updated: "2026-07-03T10:00:00Z"
+safety: public
+area: docs
+kind: documentation
+severity: low
+evidence: The setup guide contains no Node.js version requirement.
+actions:
+  - id: action-1
+    action: Add the supported Node.js version to the setup guide.
+    reason: The runtime prerequisite becomes explicit.
+    effort: low
+    risk: low
+decision:
+  status: accepted
+  reviewer: maintainer
+  reason: The missing prerequisite is confirmed.
+  action: action-1
+plan:
+  schema: feedback-plan.v1
+  owner: agent
+  tasks:
+    - id: task-1
+      task: Update the setup guide.
+      status: active
+      validation: Run the documented setup with the stated version.

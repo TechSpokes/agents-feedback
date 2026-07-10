@@ -1,0 +1,9 @@
+schema: feedback-record.v1
+id: fb-20260710-120100-absolute-path
+summary: The record contains a machine-specific absolute path.
+observation: A Windows drive path was stored instead of a repository-relative path.
+paths:
+  - C:/Users/example/project
+created: "2026-07-10T12:01:00Z"
+updated: "2026-07-10T12:01:00Z"
+safety: public
