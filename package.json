@@ -1,6 +1,6 @@
 {
   "name": "agents-feedback",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Portable .agents/feedback learning loop for shared and local agent workflow feedback.",
   "private": true,
   "license": "MIT",

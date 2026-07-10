@@ -344,6 +344,7 @@ The artifact contains `.agents/feedback` at its root. It excludes `package.json`
 - Complete contract, state, installer, release-note, and artifact tests pass.
 - Two artifact builds produce the same SHA-256 hash.
 - ZIP entries match the artifact manifest.
-- CI runs `npm run release:check`.
+- CI runs `npm run release:check` for pull requests and direct pushes to `main`, without duplicating validation for pull request branch pushes or release tags.
+- CI and release workflows cancel superseded in-progress runs for the same pull request, branch, or release tag.
 - Tag workflows create or update a draft GitHub Release with the ZIP and checksum.
 - Tagging, pushing, drafting, and publication remain maintainer-approved actions.
