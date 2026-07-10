@@ -19,6 +19,8 @@ test('bootstrap instructions distinguish fresh installation from staged upgrade'
   assert.match(content, /INSTALL\.md/);
   assert.match(content, /UPGRADE\.md/);
   assert.match(content, /existing managed hook/i);
+  assert.match(content, /existed before extraction/i);
+  assert.match(content, /pre-extraction state is unknown/i);
   assert.match(content, /Node\.js 22/i);
   assert.match(content, /AGENTS\.final\.md/);
 });
@@ -38,8 +40,11 @@ test('fresh installer supports automated and manual verification', () => {
   const content = read('scaffold/.agents/feedback/INSTALL.md');
 
   assert.match(content, /Never extract a new artifact directly over/i);
+  assert.match(content, /pre-existing `.agents` directory is allowed/i);
+  assert.match(content, /pre-extraction state is unknown/i);
   assert.match(content, /node --version/);
   assert.match(content, /Node\.js 22 or newer/i);
+  assert.doesNotMatch(content, /older than 18/i);
   assert.match(content, /--active --brief --shared-only/);
   assert.match(content, /Manually verify/i);
   assert.match(content, /exactly one managed feedback block/i);

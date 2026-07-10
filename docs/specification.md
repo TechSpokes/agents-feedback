@@ -6,6 +6,8 @@ The agents feedback scaffold is a repository-local learning loop for humans and 
 
 The repository maintains source under `scaffold/.agents/feedback`. Release artifacts package that source so fresh extraction at a target repository root creates `.agents/feedback`.
 
+User installation and first-use guidance lives in `docs/getting-started.md`. This specification is the authoritative contract for implementers and maintainers.
+
 ## Product Boundaries
 
 - The scaffold is not long-term memory.
@@ -49,23 +51,28 @@ The repository maintains source under `scaffold/.agents/feedback`. Release artif
 
 The artifact contains no user records or personal local content. Empty shared lifecycle folders are retained with placeholder files.
 
+Every artifact entry begins with `.agents/feedback/`. Keeping the complete install path inside the ZIP makes the repository root the extraction target and prevents the artifact from owning sibling `.agents` content.
+
 ## Fresh Installation
 
 Fresh installation is agent-assisted:
 
 1. Download `agents-feedback-vX.Y.Z.zip`; do not treat the optional `.zip.sha256` checksum file as an installation archive.
-2. Extract the ZIP at a repository root that does not already contain an installation.
-3. Ask an agent to read `.agents/feedback/AGENTS.md`.
-4. Add or update only the bounded root instruction hook.
-5. Verify with Node.js 22 or newer when available.
-6. Use the documented structural fallback when Node.js is unavailable or older.
-7. Replace installer `AGENTS.md` with `AGENTS.final.md` only after verification succeeds.
+2. Confirm `.agents/feedback` does not exist; a pre-existing `.agents` directory without `feedback` is allowed.
+3. Extract the ZIP at the repository root and cancel if the extraction tool requests an overwrite.
+4. Ask an agent to read `.agents/feedback/AGENTS.md`.
+5. Add or update only the bounded root instruction hook.
+6. Verify with Node.js 22 or newer when available.
+7. Use the documented structural fallback when Node.js is unavailable or older.
+8. Replace installer `AGENTS.md` with `AGENTS.final.md` only after verification succeeds.
+
+Every artifact entry is under `.agents/feedback`. Fresh extraction therefore adds the `feedback` subtree without managing sibling content under an existing `.agents` directory.
 
 Attention items reported by the state helper do not fail installation. Invalid arguments, an unreadable root, or a missing shared `records/` directory fail automated verification.
 
 ## Staged Upgrade
 
-Never extract a new artifact directly over an existing `.agents/feedback`. Existing installations use a temporary staging directory because instructions inside an artifact cannot protect records before direct extraction occurs.
+Never extract a new artifact directly over an existing `.agents/feedback`. Existing and uncertain installations use a temporary staging directory because instructions inside an artifact cannot protect records before direct extraction occurs.
 
 The upgrading agent preserves all installed shared records, all personal local content, and unrelated root instructions. It replaces managed instructions, schemas, templates, helper code, `records/README.md`, `local/README.md`, and `local/.gitignore` from staging.
 
@@ -133,13 +140,13 @@ fb-YYYYMMDD-HHMMSS-short-slug
 
 ```yaml
 schema: feedback-record.v1
-id: fb-YYYYMMDD-HHMMSS-short-slug
-summary: ""
-observation: ""
+id: fb-20000101-000000-short-slug
+summary: "Describe the feedback in one sentence."
+observation: "Describe what happened without assuming the cause."
 paths:
   - .
-created: "YYYY-MM-DDTHH:MM:SSZ"
-updated: "YYYY-MM-DDTHH:MM:SSZ"
+created: "2000-01-01T00:00:00Z"
+updated: "2000-01-01T00:00:00Z"
 safety: unreviewed
 ```
 
@@ -252,15 +259,15 @@ The installed `tools/feedback-state.mjs` uses Node.js built-ins only and support
 ### Options
 
 ```text
---root <path>
+--root PATH
 --format text|json
---status <status>
+--status STATUS
 --implemented
---stale-days <number>
+--stale-days DAYS
 --active
 --brief
---area <area>
---path <path>
+--area AREA
+--path PATH
 --shared-only
 --help
 ```
@@ -323,6 +330,8 @@ The artifact contains `.agents/feedback` at its root. It excludes `package.json`
 
 ## Release Criteria
 
+- The README links to the latest release and presents product value, three-step installation, and first use before repository maintenance.
+- The getting-started guide keeps fresh installation, staged upgrade, collaboration, and troubleshooting easy to find.
 - The package version and release note tag match.
 - Fresh extraction creates `.agents/feedback`.
 - Fresh installer instructions support Node.js and manual verification.

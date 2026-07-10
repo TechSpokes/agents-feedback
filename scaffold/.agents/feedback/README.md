@@ -2,13 +2,23 @@
 
 This folder provides a repository-local learning loop for coding agents and maintainers. It stores sanitized observations that can reduce repeated setup, tooling, workflow, documentation, and verification friction.
 
-## Installation
+You normally interact with this folder by asking an agent to inspect or capture relevant feedback. Manual record editing is optional.
 
-For a fresh repository, extract the release artifact at the repository root and point an agent to `.agents/feedback/AGENTS.md`.
+## Start Here
 
-The release artifact is the `.zip` file. The similarly named `.zip.sha256` file is optional verification metadata and is not extracted.
+During fresh setup, the agent reads `AGENTS.md` and follows `INSTALL.md`. After verification, `AGENTS.md` becomes the operational instruction file.
 
-For an existing installation, never extract directly over `.agents/feedback`. Extract into a temporary staging directory and point an agent to the staged `UPGRADE.md`.
+For an existing installation, the agent follows the staged procedure in `UPGRADE.md`. Those two procedure files are authoritative for agent installation and upgrade behavior.
+
+## First Use
+
+Ask an agent to read repository instructions and inspect active feedback relevant to the next substantial or unfamiliar task.
+
+When Node.js 22 or newer is available, humans and agents can run:
+
+```bash
+node .agents/feedback/tools/feedback-state.mjs --active --brief
+```
 
 ## Shared and Local Content
 

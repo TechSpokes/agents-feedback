@@ -22,7 +22,7 @@ Run the active brief when Node.js 22 or newer is available:
 node .agents/feedback/tools/feedback-state.mjs --active --brief
 ```
 
-Add `--area <area>` or `--path <path>` when useful. The default scan includes ignored local records. Use `--shared-only` for shared-only reporting.
+Add `--area AREA` or `--path PATH` when useful. The default scan includes ignored local records. Use `--shared-only` for shared-only reporting.
 
 If Node.js is unavailable, inspect the active shared lifecycle folders and `local/records/` when it exists. Open only records relevant to the current work. Skip this check for trivial edits where feedback cannot materially affect the task.
 

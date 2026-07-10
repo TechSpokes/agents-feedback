@@ -12,7 +12,7 @@ body:
     attributes:
       label: Version
       description: The agents-feedback version or commit.
-      placeholder: "v1.0.0"
+      placeholder: "vX.Y.Z or commit SHA"
     validations:
       required: true
   - type: textarea

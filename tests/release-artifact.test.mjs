@@ -8,9 +8,14 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
+import { discoverFiles } from '../scripts/lib/discovery.mjs';
+
 const testDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(testDir, '..');
 const scriptPath = path.join(repoRoot, 'scripts', 'build-release-artifact.mjs');
+const sourceFeedbackRoot = path.join(repoRoot, 'scaffold', '.agents', 'feedback');
+const packageJson = JSON.parse(fs.readFileSync(path.join(repoRoot, 'package.json'), 'utf8'));
+const artifactName = `agents-feedback-v${packageJson.version}.zip`;
 
 function runBuild(args = []) {
   return spawnSync(process.execPath, [scriptPath, ...args], {
@@ -41,35 +46,28 @@ function readStoredZipEntries(filePath) {
 }
 
 /**
- * @returns {{version: string, artifact: string, files: string[]}}
+ * @returns {{version: string, artifact: string, root: string, files: string[]}}
  */
 function readManifest() {
   return JSON.parse(fs.readFileSync(path.join(repoRoot, 'dist', 'artifact-manifest.json'), 'utf8'));
+}
+
+function expectedArtifactFiles(installRoot) {
+  return discoverFiles(sourceFeedbackRoot)
+    .map((filePath) => `${installRoot}/${path.relative(sourceFeedbackRoot, filePath).split(path.sep).join('/')}`);
 }
 
 test('artifact check stages the complete installable scaffold only', () => {
   const result = runBuild(['--check']);
   assert.equal(result.status, 0, result.stderr);
 
-  const root = path.join(repoRoot, 'dist', 'artifact', '.agents', 'feedback');
-  const required = [
-    'AGENTS.md',
-    'AGENTS.final.md',
-    'INSTALL.md',
-    'UPGRADE.md',
-    'README.md',
-    'local/.gitignore',
-    'local/README.md',
-    'schemas/record.schema.json',
-    'schemas/plan.schema.json',
-    'templates/record.yaml',
-    'templates/plan.yaml',
-    'tools/feedback-state.mjs',
-  ];
-
-  for (const relativePath of required) {
-    assert.ok(fs.existsSync(path.join(root, ...relativePath.split('/'))), `${relativePath} missing`);
-  }
+  const manifest = readManifest();
+  assert.equal(manifest.root, '.agents/feedback');
+  assert.ok(manifest.files.every((filePath) => filePath.startsWith(`${manifest.root}/`)));
+  const root = path.join(repoRoot, 'dist', 'artifact', ...manifest.root.split('/'));
+  const stagedFiles = discoverFiles(root)
+    .map((filePath) => `${manifest.root}/${path.relative(root, filePath).split(path.sep).join('/')}`);
+  assert.deepEqual(stagedFiles, expectedArtifactFiles(manifest.root));
   assert.ok(!fs.existsSync(path.join(repoRoot, 'dist', 'artifact', 'package.json')));
   assert.ok(!fs.existsSync(path.join(repoRoot, 'dist', 'artifact', 'node_modules')));
 });
@@ -78,7 +76,7 @@ test('release ZIP is reproducible and matches its manifest and checksum', () => 
   const first = runBuild();
   assert.equal(first.status, 0, first.stderr);
 
-  const zipPath = path.join(repoRoot, 'dist', 'agents-feedback-v1.1.0.zip');
+  const zipPath = path.join(repoRoot, 'dist', artifactName);
   const checksumPath = `${zipPath}.sha256`;
   const firstHash = sha256(zipPath);
 
@@ -88,11 +86,11 @@ test('release ZIP is reproducible and matches its manifest and checksum', () => 
   assert.equal(secondHash, firstHash);
 
   const checksum = fs.readFileSync(checksumPath, 'utf8').trim();
-  assert.equal(checksum, `${firstHash}  agents-feedback-v1.1.0.zip`);
+  assert.equal(checksum, `${firstHash}  ${artifactName}`);
 
   const manifest = readManifest();
-  assert.equal(manifest.version, '1.1.0');
-  assert.equal(manifest.artifact, 'agents-feedback-v1.1.0.zip');
+  assert.equal(manifest.version, packageJson.version);
+  assert.equal(manifest.artifact, artifactName);
   assert.deepEqual(readStoredZipEntries(zipPath), manifest.files);
 });
 
@@ -101,9 +99,8 @@ test('artifact contains no shared records or personal local content', () => {
   assert.equal(result.status, 0, result.stderr);
 
   const manifest = readManifest();
-  assert.ok(!manifest.files.some((filePath) => /^\.agents\/feedback\/records\/.*\.ya?ml$/i.test(filePath)));
-  assert.deepEqual(
-    manifest.files.filter((filePath) => filePath.startsWith('.agents/feedback/local/')),
-    ['.agents/feedback/local/.gitignore', '.agents/feedback/local/README.md'],
-  );
+  assert.ok(!manifest.files.some((filePath) => filePath.startsWith(`${manifest.root}/records/`) && /\.ya?ml$/i.test(filePath)));
+  const expectedLocalFiles = expectedArtifactFiles(manifest.root)
+    .filter((filePath) => filePath.startsWith(`${manifest.root}/local/`));
+  assert.deepEqual(manifest.files.filter((filePath) => filePath.startsWith(`${manifest.root}/local/`)), expectedLocalFiles);
 });

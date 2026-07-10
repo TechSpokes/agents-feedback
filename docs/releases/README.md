@@ -24,7 +24,9 @@ Each release note file must use this structure:
 
 The first line must match the tag exactly. For tag `vX.Y.Z`, the file is `docs/releases/vX.Y.Z.md` and the title is `# agents-feedback vX.Y.Z`.
 
-The repository currently retains release bodies for `v1.0.0` and `v1.1.0`.
+Versioned release body files are discovered from filenames matching `vX.Y.Z.md`.
+
+Write release notes for someone deciding whether to install the product. Explain the user outcome before schema, validation, workflow, or maintainer details, identify the versioned ZIP, and link to the tagged getting-started guide instead of restating its full procedure.
 
 ## Draft Release Workflow
 

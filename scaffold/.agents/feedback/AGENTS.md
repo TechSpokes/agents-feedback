@@ -9,6 +9,7 @@ This folder is the agent-assisted installer for repository feedback. Read `INSTA
 - Do not create feedback records before installation is complete.
 - Preserve unrelated repository instructions.
 - Add or update only the managed hook from `templates/root-agents-hook.md`.
+- Stop and read `UPGRADE.md` when `.agents/feedback` existed before extraction or the pre-extraction state is unknown.
 - Use the Node.js verification path when Node.js 22 or newer is available.
 - Use the documented manual fallback when Node.js is unavailable or older.
 - Stop and read `UPGRADE.md` if feedback records or an existing managed hook indicate an existing installation.

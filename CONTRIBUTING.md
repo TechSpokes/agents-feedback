@@ -15,7 +15,7 @@ Keep feedback focused on repository workflow improvement. Promote durable rules 
 Use Node.js 24 for repository checks.
 
 ```bash
-npm install
+npm ci
 npm test
 npm run check:contract
 npm run release:notes
@@ -25,6 +25,12 @@ npm run release:check
 ```
 
 Run focused checks while implementing, then run the complete release gate before requesting release approval.
+
+## Documentation Changes
+
+Treat `README.md` as the product cover page. Keep discovery, benefit, installation, and first use ahead of maintainer details.
+
+Keep `docs/getting-started.md`, `docs/README.md`, active release notes, installed scaffold instructions, and `docs/specification.md` aligned when user-visible installation or usage changes.
 
 ## Contract Changes
 

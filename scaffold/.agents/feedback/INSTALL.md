@@ -2,11 +2,11 @@
 
 ## Purpose
 
-Use this file after the release artifact has been extracted into a repository that does not already contain an installed `.agents/feedback` scaffold.
+Use this file only after confirming that `.agents/feedback` did not exist before extraction. A pre-existing `.agents` directory is allowed because the release manages only its `feedback` subtree.
 
 ## Existing Installation Check
 
-Stop and follow `UPGRADE.md` when the root instruction surface already contains `agents-feedback:start` or any YAML record already exists under `records/`. Existing installations must use staged extraction; never extract a new artifact directly over them.
+Stop and follow `UPGRADE.md` when `.agents/feedback` existed before extraction, the pre-extraction state is unknown, the root instruction surface already contains `agents-feedback:start`, or any YAML record already exists under `records/`. Existing or uncertain installations must use staged extraction; never extract a new artifact directly over them.
 
 ## Installation Steps
 
@@ -17,7 +17,7 @@ Stop and follow `UPGRADE.md` when the root instruction surface already contains 
 5. Check `node --version`.
 6. Run `node .agents/feedback/tools/feedback-state.mjs --root .agents/feedback --active --brief --shared-only` when Node.js 22 or newer is available.
 7. Require exit code `0`. Report attention items without treating them as installation failure.
-8. Manually verify the managed files, lifecycle folders, local boundary, and root hook when Node.js is unavailable or older than 18.
+8. Manually verify the managed files, lifecycle folders, local boundary, and root hook when Node.js is unavailable or older than 22.
 9. Replace `.agents/feedback/AGENTS.md` with `.agents/feedback/AGENTS.final.md` only after verification succeeds.
 10. Report the root instruction file changed, verification mode, and any attention items.
 

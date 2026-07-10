@@ -18,7 +18,8 @@ const version = packageJson.version;
 const artifactName = `agents-feedback-v${version}.zip`;
 const distDir = path.join(repoRoot, 'dist');
 const artifactRoot = path.join(distDir, 'artifact');
-const stagedFeedbackRoot = path.join(artifactRoot, '.agents', 'feedback');
+const artifactInstallRoot = '.agents/feedback';
+const stagedFeedbackRoot = path.join(artifactRoot, ...artifactInstallRoot.split('/'));
 const sourceFeedbackRoot = path.join(repoRoot, 'scaffold', '.agents', 'feedback');
 const zipPath = path.join(distDir, artifactName);
 const checksumPath = `${zipPath}.sha256`;
@@ -174,45 +175,46 @@ function sha256(filePath) {
   return crypto.createHash('sha256').update(fs.readFileSync(filePath, 'base64'), 'base64').digest('hex');
 }
 
-function verifyRequiredFiles() {
-  const required = [
-    '.agents/feedback/AGENTS.md',
-    '.agents/feedback/INSTALL.md',
-    '.agents/feedback/UPGRADE.md',
-    '.agents/feedback/AGENTS.final.md',
-    '.agents/feedback/local/.gitignore',
-    '.agents/feedback/local/README.md',
-    '.agents/feedback/schemas/record.schema.json',
-    '.agents/feedback/schemas/plan.schema.json',
-    '.agents/feedback/tools/feedback-state.mjs',
-  ];
+function retainedLocalArtifactFiles() {
+  const localIgnorePath = path.join(sourceFeedbackRoot, 'local', '.gitignore');
+  const retained = fs.readFileSync(localIgnorePath, 'utf8')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('!'))
+    .map((line) => line.slice(1).replace(/^\//, ''));
 
-  for (const relativePath of required) {
-    const filePath = path.join(artifactRoot, ...relativePath.split('/'));
-    if (!fs.existsSync(filePath)) {
-      throw new Error(`missing artifact file: ${relativePath}`);
-    }
+  if (retained.some((relativePath) => /[*?[\]]/.test(relativePath))) {
+    throw new Error('local .gitignore retained paths must not use glob patterns');
   }
 
+  return new Set([
+    `${artifactInstallRoot}/local/.gitignore`,
+    ...retained.map((relativePath) => `${artifactInstallRoot}/local/${relativePath}`),
+  ]);
+}
+
+function verifyArtifact() {
   if (fs.existsSync(path.join(artifactRoot, 'package.json'))) {
     throw new Error('artifact must not include repository package.json');
   }
 
   const artifactFiles = walkFiles(artifactRoot)
     .map((filePath) => path.relative(artifactRoot, filePath).split(path.sep).join('/'));
+  const sourceFiles = walkFiles(sourceFeedbackRoot)
+    .map((filePath) => `${artifactInstallRoot}/${path.relative(sourceFeedbackRoot, filePath).split(path.sep).join('/')}`);
+  if (JSON.stringify(artifactFiles) !== JSON.stringify(sourceFiles)) {
+    throw new Error('artifact file inventory must match the source scaffold');
+  }
   if (artifactFiles.some((filePath) => filePath.includes('node_modules/'))) {
     throw new Error('artifact must not include node_modules');
   }
-  if (artifactFiles.some((filePath) => /^\.agents\/feedback\/records\/.*\.ya?ml$/i.test(filePath))) {
+  if (artifactFiles.some((filePath) => filePath.startsWith(`${artifactInstallRoot}/records/`) && /\.ya?ml$/i.test(filePath))) {
     throw new Error('artifact must not include shared feedback records');
   }
 
-  const allowedLocalFiles = new Set([
-    '.agents/feedback/local/.gitignore',
-    '.agents/feedback/local/README.md',
-  ]);
+  const allowedLocalFiles = retainedLocalArtifactFiles();
   const unexpectedLocal = artifactFiles.find(
-    (filePath) => filePath.startsWith('.agents/feedback/local/') && !allowedLocalFiles.has(filePath),
+    (filePath) => filePath.startsWith(`${artifactInstallRoot}/local/`) && !allowedLocalFiles.has(filePath),
   );
   if (unexpectedLocal) {
     throw new Error(`artifact must not include personal local content: ${unexpectedLocal}`);
@@ -222,13 +224,13 @@ function verifyRequiredFiles() {
 fs.rmSync(artifactRoot, { recursive: true, force: true });
 ensureDirectory(stagedFeedbackRoot);
 copyRecursive(sourceFeedbackRoot, stagedFeedbackRoot);
-verifyRequiredFiles();
+verifyArtifact();
 ensureDirectory(distDir);
 
 const manifest = {
   version,
   artifact: artifactName,
-  root: '.agents/feedback',
+  root: artifactInstallRoot,
   files: walkFiles(artifactRoot).map((filePath) => path.relative(artifactRoot, filePath).split(path.sep).join('/')),
 };
 fs.writeFileSync(path.join(distDir, 'artifact-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);

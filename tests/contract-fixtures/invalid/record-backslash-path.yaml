@@ -1,0 +1,9 @@
+schema: feedback-record.v1
+id: fb-20260710-100000-backslash-path
+summary: Backslash paths are platform-specific
+observation: Repository paths must use forward slashes on every platform.
+paths:
+  - 'src\index.js'
+created: "2026-07-10T10:00:00Z"
+updated: "2026-07-10T10:00:00Z"
+safety: public

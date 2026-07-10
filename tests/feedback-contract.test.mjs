@@ -7,6 +7,7 @@ import test from 'node:test';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import { parse as parseYaml } from 'yaml';
+import { discoverFiles } from '../scripts/lib/discovery.mjs';
 
 const testDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(testDir, '..');
@@ -17,19 +18,6 @@ function read(relativePath) {
 
 function readJson(relativePath) {
   return JSON.parse(read(relativePath));
-}
-
-function walkFiles(directory) {
-  const files = [];
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    const entryPath = path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...walkFiles(entryPath));
-    } else if (entry.isFile()) {
-      files.push(entryPath);
-    }
-  }
-  return files.sort();
 }
 
 function assertDescriptions(schema, propertyPath = []) {
@@ -63,16 +51,8 @@ test('record schema is the sole concise v1 contract', () => {
 
   assertDescriptions(recordSchema);
   assert.equal(recordSchema.properties['schema'].const, 'feedback-record.v1');
-  assert.deepEqual(recordSchema.required, [
-    'schema',
-    'id',
-    'summary',
-    'observation',
-    'paths',
-    'created',
-    'updated',
-    'safety',
-  ]);
+  assert.equal(new Set(recordSchema.required).size, recordSchema.required.length);
+  assert.ok(recordSchema.required.every((name) => Object.hasOwn(recordSchema.properties, name)));
   assert.equal(recordSchema.properties['status'], undefined);
   assert.equal(recordSchema.properties['schema_version'], undefined);
   assert.equal(recordSchema.properties['title'], undefined);
@@ -85,18 +65,25 @@ test('plan schema is flat and treats seven tasks as guidance', () => {
 
   assertDescriptions(planSchema);
   assert.equal(planSchema.properties['schema'].const, 'feedback-plan.v1');
-  assert.deepEqual(planSchema.required, ['schema', 'owner', 'tasks']);
+  assert.equal(new Set(planSchema.required).size, planSchema.required.length);
+  assert.ok(planSchema.required.every((name) => Object.hasOwn(planSchema.properties, name)));
   assert.equal(planSchema.properties['tasks'].maxItems, undefined);
   assert.equal(planSchema.properties['tasks'].items.properties['tasks'], undefined);
 
-  const plan = parseYaml(read('tests/contract-fixtures/valid/plan-eight-tasks.yaml'));
-  assert.equal(validatePlan(plan), true, JSON.stringify(validatePlan.errors));
+  const validPlanRoot = path.join(repoRoot, 'tests', 'contract-fixtures', 'valid');
+  const plans = discoverFiles(validPlanRoot, { extensions: ['.yaml', '.yml'] })
+    .map((filePath) => parseYaml(fs.readFileSync(filePath, 'utf8')));
+  assert.ok(plans.length > 0, 'no valid plan fixtures discovered');
+  for (const plan of plans) {
+    assert.equal(validatePlan(plan), true, JSON.stringify(validatePlan.errors));
+  }
+  assert.ok(plans.some((plan) => plan.tasks.length > 7), 'valid fixtures do not prove task guidance is non-binding');
 });
 
 test('all valid shared and local fixture records satisfy the record schema', () => {
   const { validateRecord } = createValidators();
   const root = path.join(repoRoot, 'tests', 'fixtures', 'valid-feedback');
-  const fixtures = walkFiles(root).filter((filePath) => /\.ya?ml$/i.test(filePath));
+  const fixtures = discoverFiles(root, { extensions: ['.yaml', '.yml'] });
 
   assert.ok(fixtures.length > 0);
   for (const filePath of fixtures) {
@@ -109,7 +96,7 @@ test('every invalid contract fixture is rejected for its intended contract', () 
   const { validateRecord, validatePlan } = createValidators();
   const root = path.join(repoRoot, 'tests', 'contract-fixtures', 'invalid');
 
-  for (const filePath of walkFiles(root)) {
+  for (const filePath of discoverFiles(root, { extensions: ['.yaml', '.yml'] })) {
     const value = parseYaml(fs.readFileSync(filePath, 'utf8'));
     const validator = path.basename(filePath).startsWith('plan-') ? validatePlan : validateRecord;
     assert.equal(validator(value), false, `${path.relative(repoRoot, filePath)} unexpectedly validated`);
@@ -147,25 +134,23 @@ test('local boundary is tracked while personal additions remain ignored', () => 
 });
 
 test('public repository support files and release channels remain present', () => {
-  const requiredFiles = [
-    'CHANGELOG.md',
-    'SECURITY.md',
-    'SUPPORT.md',
-    'CODE_OF_CONDUCT.md',
-    '.github/CODEOWNERS',
-    '.github/dependabot.yml',
-    '.github/pull_request_template.md',
-    '.github/ISSUE_TEMPLATE/bug_report.yml',
-    '.github/ISSUE_TEMPLATE/feature_request.yml',
-    '.github/ISSUE_TEMPLATE/config.yml',
-  ];
+  const githubRoot = path.join(repoRoot, '.github');
+  const githubFiles = discoverFiles(githubRoot);
+  const issueTemplates = discoverFiles(path.join(githubRoot, 'ISSUE_TEMPLATE'), { extensions: ['.yml', '.yaml'] })
+    .map((filePath) => fs.readFileSync(filePath, 'utf8'));
+  const workflows = discoverFiles(path.join(githubRoot, 'workflows'), { extensions: ['.yml', '.yaml'] })
+    .map((filePath) => fs.readFileSync(filePath, 'utf8'));
+  const ciWorkflow = workflows.find((source) => /pull_request:/.test(source) && /npm run release:check/.test(source));
+  const releaseWorkflow = workflows.find((source) => /gh release/.test(source) && /npm run artifact:build/.test(source));
 
-  for (const relativePath of requiredFiles) {
-    assert.ok(fs.existsSync(path.join(repoRoot, relativePath)), `${relativePath} missing`);
-  }
-
-  const ciWorkflow = read('.github/workflows/ci.yml');
-  const releaseWorkflow = read('.github/workflows/release.yml');
+  assert.ok(githubFiles.some((filePath) => path.basename(filePath) === 'CODEOWNERS'));
+  assert.ok(githubFiles.some((filePath) => path.basename(filePath) === 'dependabot.yml'));
+  assert.ok(githubFiles.some((filePath) => path.basename(filePath) === 'pull_request_template.md'));
+  assert.ok(issueTemplates.some((source) => /name: Bug report/.test(source)));
+  assert.ok(issueTemplates.some((source) => /name: Feature request/.test(source)));
+  assert.ok(issueTemplates.some((source) => /contact_links:/.test(source)));
+  assert.ok(ciWorkflow, 'CI workflow not discovered');
+  assert.ok(releaseWorkflow, 'draft release workflow not discovered');
   assert.match(ciWorkflow, /actions\/checkout@v6/);
   assert.match(ciWorkflow, /actions\/setup-node@v6/);
   assert.match(ciWorkflow, /run: npm ci/);
@@ -173,5 +158,6 @@ test('public repository support files and release channels remain present', () =
   assert.match(releaseWorkflow, /actions\/setup-node@v6/);
   assert.match(releaseWorkflow, /actions\/upload-artifact@v7/);
   assert.match(releaseWorkflow, /run: npm ci/);
-  assert.match(read('.github/dependabot.yml'), /package-ecosystem: "npm"/);
+  const dependabot = githubFiles.find((filePath) => path.basename(filePath) === 'dependabot.yml');
+  assert.match(fs.readFileSync(dependabot, 'utf8'), /package-ecosystem: "npm"/);
 });

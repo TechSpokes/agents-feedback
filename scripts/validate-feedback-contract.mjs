@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import { parse as parseYaml } from 'yaml';
+import { discoverFiles } from './lib/discovery.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];
@@ -30,22 +31,6 @@ function readJson(relativePath) {
 
 function fail(message) {
   failures.push(message);
-}
-
-function walkFiles(directory) {
-  const files = [];
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    const entryPath = path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      if (['.git', '.idea', '.intake', 'dist', 'node_modules'].includes(entry.name)) {
-        continue;
-      }
-      files.push(...walkFiles(entryPath));
-    } else if (entry.isFile()) {
-      files.push(entryPath);
-    }
-  }
-  return files.sort();
 }
 
 function assertDescriptions(schema, label, propertyPath = []) {
@@ -116,21 +101,23 @@ const validateRecord = ajv.compile(recordSchema);
 const validatePlan = ajv.getSchema(planSchema.$id);
 
 const validFixtureRoot = path.join(repoRoot, 'tests', 'fixtures', 'valid-feedback');
-for (const filePath of walkFiles(validFixtureRoot).filter((candidate) => /\.ya?ml$/i.test(candidate))) {
+for (const filePath of discoverFiles(validFixtureRoot, { extensions: ['.yaml', '.yml'] })) {
   const value = parseYaml(read(filePath));
   if (!validateRecord(value)) {
     fail(`${path.relative(repoRoot, filePath)} invalid: ${ajv.errorsText(validateRecord.errors)}`);
   }
 }
 
-const validPlanPath = path.join(repoRoot, 'tests', 'contract-fixtures', 'valid', 'plan-eight-tasks.yaml');
-const validPlan = parseYaml(read(validPlanPath));
-if (!validatePlan(validPlan)) {
-  fail(`${path.relative(repoRoot, validPlanPath)} invalid: ${ajv.errorsText(validatePlan.errors)}`);
+const validPlanRoot = path.join(repoRoot, 'tests', 'contract-fixtures', 'valid');
+for (const filePath of discoverFiles(validPlanRoot, { extensions: ['.yaml', '.yml'] })) {
+  const validPlan = parseYaml(read(filePath));
+  if (!validatePlan(validPlan)) {
+    fail(`${path.relative(repoRoot, filePath)} invalid: ${ajv.errorsText(validatePlan.errors)}`);
+  }
 }
 
 const invalidFixtureRoot = path.join(repoRoot, 'tests', 'contract-fixtures', 'invalid');
-for (const filePath of walkFiles(invalidFixtureRoot)) {
+for (const filePath of discoverFiles(invalidFixtureRoot, { extensions: ['.yaml', '.yml'] })) {
   const value = parseYaml(read(filePath));
   const validator = path.basename(filePath).startsWith('plan-') ? validatePlan : validateRecord;
   if (validator(value)) {
@@ -153,21 +140,13 @@ if (!validatePlan(planTemplate)) {
   fail(`plan template invalid: ${ajv.errorsText(validatePlan.errors)}`);
 }
 
-for (const filePath of walkFiles(repoRoot)) {
+for (const filePath of discoverFiles(repoRoot, { extensions: ['.md', '.yaml', '.yml', '.json', '.mjs'] })) {
   const relativePath = path.relative(repoRoot, filePath).split(path.sep).join('/');
-  const activeRoots = [
-    'AGENTS.md',
-    'CHANGELOG.md',
-    'CODE_OF_CONDUCT.md',
-    'CONTRIBUTING.md',
-    'README.md',
-    'SECURITY.md',
-    'SUPPORT.md',
-    '.github/',
-    'docs/',
-    'scaffold/.agents/feedback/',
-  ];
-  const active = activeRoots.some((root) => relativePath === root || relativePath.startsWith(root));
+  const topLevelMarkdown = !relativePath.includes('/') && relativePath.endsWith('.md');
+  const active = topLevelMarkdown
+    || relativePath.startsWith('.github/')
+    || relativePath.startsWith('docs/')
+    || relativePath.startsWith('scaffold/.agents/feedback/');
   if (!active || relativePath.startsWith('docs/plans/') || !/\.(md|yaml|yml|json|mjs)$/.test(relativePath)) {
     continue;
   }

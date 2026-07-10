@@ -18,13 +18,14 @@ This repository maintains an agent-assisted `.agents/feedback` installer scaffol
 ## Must-read documents
 
 - `README.md` explains project purpose, artifact installation, verification, and release scope.
+- `docs/README.md` is the public documentation index.
+- `docs/getting-started.md` defines the adoption-first installation, first-use, upgrade, and troubleshooting path.
 - `CONTRIBUTING.md` defines contribution scope and verification expectations.
 - `CHANGELOG.md` records public product releases only.
 - `SECURITY.md`, `SUPPORT.md`, and `CODE_OF_CONDUCT.md` define public repository support and conduct policy.
 - `docs/specification.md` defines the installer scaffold contract, lifecycle, records, plans, script behavior, and safety rules.
 - `docs/releases/README.md` defines release note file requirements and the draft release workflow.
-- `docs/releases/v1.0.0.md` defines the v1 release body used for the draft GitHub Release.
-- `docs/releases/v1.1.0.md` defines the v1.1.0 release body used for the draft GitHub Release.
+- Versioned files under `docs/releases/` define release bodies used for draft GitHub Releases.
 - `scaffold/.agents/feedback/README.md` explains installed folder behavior when the scaffold exists.
 
 ## Agent Guidelines

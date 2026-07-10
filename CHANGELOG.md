@@ -4,7 +4,7 @@ This changelog records public `agents-feedback` product releases. It does not li
 
 ## v1.1.0
 
-Adds relevant feedback discovery, a concise folder-authoritative record contract, flat plans, ignored per-clone feedback, staged upgrades, Node-optional installation, complete schema validation, and reproducible release artifacts.
+Adds relevant feedback discovery, a concise folder-authoritative record contract, flat plans, ignored per-clone feedback, staged upgrades, Node-optional installation, adoption-first documentation, complete schema validation, and reproducible release artifacts.
 
 Release body: [docs/releases/v1.1.0.md](docs/releases/v1.1.0.md)
 

@@ -586,6 +586,12 @@ Resolution: Require Node.js 22 or newer for automated installed-helper verificat
 
 The improved plan keeps one final v1 schema, strengthens accepted and completed evidence, defines local precedence and public visibility, adds executable local-ignore validation, narrows bounded-parser claims, verifies action identifiers, and requires reproducible artifact evidence. Repository-only validation dependencies are pinned and excluded from the artifact. These changes close the review gaps without expanding the installed dependency or service footprint.
 
+## Adoption-First Documentation Pass
+
+The second release phase treats `README.md` as the product cover page and puts value, download, three-step setup, first use, collaboration, and safety before repository maintenance. It explicitly distinguishes an allowed pre-existing `.agents` directory from an existing `.agents/feedback` installation that requires a staged upgrade. `docs/getting-started.md` is the human installation and usage authority, while installed `INSTALL.md`, `UPGRADE.md`, and `AGENTS.final.md` remain the agent procedure authorities and `docs/specification.md` remains the contract authority.
+
+Documentation and release tests discover Markdown files, versioned release notes, fixtures, workflows, issue templates, package versions, and scaffold files from their authoritative locations. Tests no longer copy documentation inventories, release-version lists, scaffold manifests, or schema required-field lists.
+
 ## Execution and Release-Candidate Evidence
 
 | Requirement | Evidence | Result |
@@ -593,16 +599,18 @@ The improved plan keeps one final v1 schema, strengthens accepted and completed 
 | Extensive plan | This task frame, decisions, work packages, tests, risks, and traceability matrix | Complete |
 | Plan review | Findings R1 through R15 with recorded resolutions | Complete |
 | Improved plan | Decisions D7 through D9 and revised validation, delivery, and documentation scope | Complete |
-| Clean dependency install | `npm ci` with 7 packages and 0 vulnerabilities | Pass |
-| Full behavior suite | `npm test` with 31 passing tests | Pass |
+| Clean dependency install | `npm ci` added 9 packages, audited 10 packages, and found 0 vulnerabilities | Pass |
+| Full behavior suite | `npm test` with 33 passing tests | Pass |
 | Contract validation | `npm run check:contract` | Pass |
 | Complete release gate | `npm run release:check` | Pass |
 | Release notes | `docs/releases/v1.1.0.md` matches package `1.1.0` | Pass |
 | Reproducible artifact | Two builds produced the same ZIP hash | Pass |
-| ZIP checksum | SHA-256 `e36e84fe9eaaa772734ec5dce8d0b920a101dd39736fa40ac9e5151abb981166` | Pass |
-| Extracted artifact | Required files present; forbidden files absent; installed state helper exits `0` | Pass |
-| Source identity | Scaffold source and staged artifact have no diff | Pass |
-| User start guidance | Active docs identify the ZIP as installable and checksum as optional non-extracted metadata | Pass |
+| ZIP checksum | SHA-256 `1fb9023ea530a5813403ea5621fd8809d90b2e9156dc50af837b08f8079f78df` | Pass |
+| Extracted artifact | Discovered source inventory matches the staged artifact; forbidden content is absent; installed state helper exits `0` | Pass |
+| Source identity | Discovered scaffold source and staged artifact inventories match | Pass |
+| User start guidance | README links the latest release and routes to the authoritative getting-started guide before maintainer material | Pass |
+| Documentation integrity | Every discovered Markdown local file and heading link resolves | Pass |
+| IDE inspection | Reported plan-schema warning and edited-file inspections are clear | Pass |
 | Public release | Tag, push, draft release mutation, and publication | Pending maintainer approval |
 
 ## Open Items

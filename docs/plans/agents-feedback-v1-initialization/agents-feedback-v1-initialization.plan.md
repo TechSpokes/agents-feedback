@@ -616,7 +616,7 @@ Create `scaffold/.agents/feedback/schemas/plan.schema.json`.
 
 Create `scaffold/.agents/feedback/schemas/record.schema.json`.
 
-```json
+```text
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://techspokes.local/agents-feedback/record.schema.json",
